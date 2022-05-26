@@ -29,7 +29,26 @@ func ParseDocument(ctx context.Context) {
 		printPath(key, path)
 	}
 
-	// doc.Components.Responses
+	for key, schemaRef := range doc.Components.Schemas {
+		schema := schemaRef.Value
+		fields := []Field{}
+		if schema.Type == "object" {
+			for key, schemaRef := range schema.Properties {
+				schema := schemaRef.Value
+				fields = append(fields, Field{
+					Name: key,
+					Type: Type{
+						Name: schema.Type,
+					},
+				})
+			}
+			s := Struct{
+				Name:   key,
+				Fields: fields,
+			}
+			fmt.Print(s.String())
+		}
+	}
 }
 
 func printPath(key string, path *openapi3.PathItem) {
