@@ -1,1 +1,18 @@
-Test
+package gen
+
+import (
+    "context"
+    "http"
+
+    "github.com/gin-gonic/gin"
+)
+
+{{ range .Endpoints }}
+    {{ template "service.tmpl" . }}
+{{ end }}
+
+func NewRoutes(router *gin.Engine) {
+{{ range .Endpoints }}
+    {{ template "route.tmpl" . }}
+{{ end }}
+}

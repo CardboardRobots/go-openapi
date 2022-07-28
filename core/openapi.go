@@ -34,11 +34,9 @@ func ParseDocument(ctx context.Context) {
 		log.Fatalf("error: %v\n", err)
 	}
 
-	fmt.Println("package gen")
-	fmt.Println("import (\n\"context\"\n\"github.com/gin-gonic/gin\"\n)")
-
 	schemaNames := make(map[string]*schemas.Struct)
 
+	structs := make([]*schemas.Struct, 0)
 	for key, schemaRef := range doc.Components.Schemas {
 		schema := schemaRef.Value
 		switch schema.Type {
@@ -49,18 +47,32 @@ func ParseDocument(ctx context.Context) {
 			s := schemas.NewStruct(key, schema)
 			name := "#/components/schemas/" + s.Name
 			schemaNames[name] = &s
-			fmt.Printf("// %v\n%v ", name, s.String())
+			structs = append(structs, &s)
+			// fmt.Printf("// %v\n%v ", name, s.String())
 		case "array":
 		}
 	}
 
 	// createTemplate("openapi")
 	// fmt.Println("func Route(router *gin.Engine) {")
+	endpoints := make([]Endpoint, 0)
 	for key, path := range doc.Paths {
-		printPath(key, path, schemaNames, t)
+		e := printPath(key, path, schemaNames, t)
+		endpoints = append(endpoints, e...)
 	}
+
+	data := TemplateData{
+		Structs:   structs,
+		Endpoints: endpoints,
+	}
+	t.ExecuteTemplate(os.Stdout, "main.tmpl", data)
 	// fmt.Println("}")
 
+}
+
+type TemplateData struct {
+	Structs   []*schemas.Struct
+	Endpoints []Endpoint
 }
 
 type Types map[string]interface{}
@@ -74,17 +86,20 @@ func ParseType(
 	return nil
 }
 
-func printPath(key string, path *openapi3.PathItem, s map[string]*schemas.Struct, t *template.Template) {
+func printPath(key string, path *openapi3.PathItem, s map[string]*schemas.Struct, t *template.Template) []Endpoint {
+	endpoints := make([]Endpoint, 0)
 	// fmt.Printf("path: %v\n", key)
 	// printOperation("Connect", path.Connect)
 	// printOperation("Delete", path.Delete)
-	printGet(key, path.Get, s, t)
+	endpoint := GetEndpoint(key, path.Get, s, t)
+	endpoints = append(endpoints, endpoint)
 	// printOperation("Head", path.Head)
 	// printOperation("Options", path.Options)
 	// printOperation("Patch", path.Patch)
 	// printOperation("Post", path.Post)
 	// printOperation("Put", path.Put)
 	// printOperation("Trace", path.Trace)
+	return endpoints
 }
 
 func printOperation(verb string, operation *openapi3.Operation) {

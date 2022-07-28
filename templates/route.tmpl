@@ -1,24 +1,24 @@
 router.GET("{{ .Path }}", func(ctx *gin.Context) {
-    params:= Params{
+    params:= {{ .OperationId }}Params{
         {{ range .Parameters }}
             {{ .Name }}: ctx.Params.ByName("{{ .Name }}"),
         {{ end }}
     }
 
-    var query Query
+    var query {{ .OperationId }}Query
     err := ctx.ShouldBindQuery(&query)
 
-    var body Body
+    var body {{ .OperationId }}Body
     err := ctx.ShouldBind(&body)
 
-    request := Request{
+    request := {{ .OperationId }}Request{
         params,
         query,
         body,
     }
 
-    var service Service
-    response := service.Service(ctx.Request.Context(), request)
+    var service {{ .OperationId }}Service
+    response := service.{{ .OperationId }}(ctx.Request.Context(), request)
 
     ctx.IndentedJson(http.StatusOk, response)
 })
