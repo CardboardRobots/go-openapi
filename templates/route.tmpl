@@ -1,20 +1,24 @@
 router.GET("{{ .Path }}", func(ctx *gin.Context) {
-    {{ range .Parameters }}
-        {{ .Name }} := ctx.Params.ByName("{{ .Name }}")
-    {{ end }}
-    {{ if len .Query }}
-        type Query struct {
-            {{ range $key, $value := .Query }}
-            {{ $key }} {{ $value.Type }} `form:"{{ $value.Property }}"`
-            {{ end }}
-        }
-        var query Query
-        err := ctx.ShouldBindQuery(&query)
-    {{ end }}
-
-    {{ if len .Responses }}
-        {{ range $key, $value := .Responses }}
-            {{ $key }} {{ $value.Type }}
+    params:= Params{
+        {{ range .Parameters }}
+            {{ .Name }}: ctx.Params.ByName("{{ .Name }}"),
         {{ end }}
-    {{ end }}
+    }
+
+    var query Query
+    err := ctx.ShouldBindQuery(&query)
+
+    var body Body
+    err := ctx.ShouldBind(&body)
+
+    request := Request{
+        params,
+        query,
+        body,
+    }
+
+    var service Service
+    response := service.Service(ctx.Request.Context(), request)
+
+    ctx.IndentedJson(http.StatusOk, response)
 })

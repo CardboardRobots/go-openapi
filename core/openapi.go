@@ -29,13 +29,13 @@ func ParseDocument(ctx context.Context) {
 		log.Fatalf("error: %v\n", err)
 	}
 
-	t, err := template.ParseFS(os.DirFS("./templates"), "route.tmpl")
+	t, err := template.ParseFS(os.DirFS("./templates"), "*.tmpl")
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 	}
 
 	fmt.Println("package gen")
-	fmt.Println("import \"github.com/gin-gonic/gin\"")
+	fmt.Println("import (\n\"context\"\n\"github.com/gin-gonic/gin\"\n)")
 
 	schemaNames := make(map[string]*schemas.Struct)
 
@@ -55,11 +55,11 @@ func ParseDocument(ctx context.Context) {
 	}
 
 	// createTemplate("openapi")
-	fmt.Println("func Route(router *gin.Engine) {")
+	// fmt.Println("func Route(router *gin.Engine) {")
 	for key, path := range doc.Paths {
 		printPath(key, path, schemaNames, t)
 	}
-	fmt.Println("}")
+	// fmt.Println("}")
 
 }
 
@@ -103,7 +103,7 @@ func printOperation(verb string, operation *openapi3.Operation) {
 	}
 }
 
-func printGet(key string, operation *openapi3.Operation, s map[string]*schemas.Struct, t *template.Template) {
+func GetEndpoint(key string, operation *openapi3.Operation, s map[string]*schemas.Struct, t *template.Template) Endpoint {
 	parameters := make([]*openapi3.Parameter, 0)
 	for _, parameterRef := range operation.Parameters {
 		parameter := parameterRef.Value
@@ -112,13 +112,30 @@ func printGet(key string, operation *openapi3.Operation, s map[string]*schemas.S
 		}
 	}
 
-	t.Execute(os.Stdout, map[string]interface{}{
-		"Path":       KeyToPath(key),
-		"Operation":  operation,
-		"Parameters": parameters,
-		"Query":      GetQuery(operation),
-		"Responses":  GetResponses(operation, s),
-	})
+	return Endpoint{
+		OperationId: GetPropertyName(operation.OperationID),
+		Path:        KeyToPath(key),
+		Operation:   operation,
+		Parameters:  parameters,
+		Query:       GetQuery(operation),
+		Body:        GetBody(operation),
+		Responses:   GetResponses(operation, s),
+	}
+}
+
+func printGet(key string, operation *openapi3.Operation, s map[string]*schemas.Struct, t *template.Template) {
+	endpoint := GetEndpoint(key, operation, s, t)
+	t.ExecuteTemplate(os.Stdout, "service.tmpl", endpoint)
+}
+
+type Endpoint struct {
+	OperationId string
+	Path        string
+	Operation   *openapi3.Operation
+	Parameters  []*openapi3.Parameter
+	Query       map[string]QueryProperty
+	Body        map[string]BodyProperty
+	Responses   map[string]ResponseOption
 }
 
 func KeyToPath(key string) string {
@@ -153,6 +170,16 @@ func GetQuery(operation *openapi3.Operation) map[string]QueryProperty {
 	return query
 }
 
+type BodyProperty struct {
+	Type     string
+	Property string
+}
+
+func GetBody(operation *openapi3.Operation) map[string]BodyProperty {
+	body := make(map[string]BodyProperty)
+	return body
+}
+
 func GetPropertyName(name string) string {
 	if len(name) < 1 {
 		return ""
@@ -185,7 +212,7 @@ func GetResponses(operation *openapi3.Operation, s map[string]*schemas.Struct) m
 			if mediaType.Schema != nil {
 				schema, ok := s[mediaType.Schema.Ref]
 				if ok {
-					name := GetResponseName(code, key, operation)
+					name := GetResponseName(code, key)
 					responseOptions[name] = ResponseOption{
 						Type: schema.Name,
 					}
@@ -197,10 +224,10 @@ func GetResponses(operation *openapi3.Operation, s map[string]*schemas.Struct) m
 	return responseOptions
 }
 
-func GetResponseName(code string, key string, operation *openapi3.Operation) string {
+func GetResponseName(code string, key string) string {
 	switch key {
 	case "application/json":
 		key = "Json"
 	}
-	return GetPropertyName(operation.OperationID) + GetPropertyName(code) + GetPropertyName(key)
+	return GetPropertyName(key) + GetPropertyName(code)
 }

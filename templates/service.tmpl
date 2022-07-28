@@ -1,0 +1,34 @@
+type {{ .OperationId }}Params struct {
+    {{ range .Parameters }}
+        {{ .Name }} {{ .Schema.Value.Type }}
+    {{ end }}
+}
+
+type {{ .OperationId }}Query struct {
+    {{ range $key, $value := .Query }}
+        {{ $key }} {{ $value.Type }} `form:"{{ $value.Property }}"`
+    {{ end }}
+}
+
+type {{ .OperationId }}Body struct {
+    {{ range $key, $value := .Body }}
+        {{ $key }} {{ $value.Type }} `form:"{{ $value.Property }}"`
+    {{ end }}
+}
+
+type {{ .OperationId }}Request struct {
+    {{ .OperationId }}Params
+    {{ .OperationId }}Query
+    {{ .OperationId }}Body
+}
+
+type {{ .OperationId }}Response struct {
+    {{ range $key, $value := .Responses }}
+        {{ $key }} *{{ $value.Type }}
+    {{ end }}
+}
+
+type {{ .OperationId }}Service interface {
+    {{ .OperationId }}(ctx context.Context, request {{ .OperationId }}Request) {{ .OperationId }}Response
+}
+
