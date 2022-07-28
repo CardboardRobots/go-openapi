@@ -1,0 +1,20 @@
+router.GET("{{ .Path }}", func(ctx *gin.Context) {
+    {{ range .Parameters }}
+        {{ .Name }} := ctx.Params.ByName("{{ .Name }}")
+    {{ end }}
+    {{ if len .Query }}
+        type Query struct {
+            {{ range $key, $value := .Query }}
+            {{ $key }} {{ $value.Type }} `form:"{{ $value.Property }}"`
+            {{ end }}
+        }
+        var query Query
+        err := ctx.ShouldBindQuery(&query)
+    {{ end }}
+
+    {{ if len .Responses }}
+        {{ range $key, $value := .Responses }}
+            {{ $key }} {{ $value.Type }}
+        {{ end }}
+    {{ end }}
+})

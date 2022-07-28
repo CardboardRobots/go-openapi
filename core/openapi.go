@@ -3,11 +3,15 @@ package core
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
+	"os"
 	"strings"
+	"text/template"
 
 	"github.com/getkin/kin-openapi/openapi3"
+
+	"github.com/CardboardRobots/go-array"
+	"github.com/cardboardrobots/go-openapi/schemas"
 )
 
 func ParseDocument(ctx context.Context) {
@@ -24,49 +28,68 @@ func ParseDocument(ctx context.Context) {
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 	}
-	// createTemplate("openapi")
-	for key, path := range doc.Paths {
-		printPath(key, path)
+
+	t, err := template.ParseFS(os.DirFS("./templates"), "route.tmpl")
+	if err != nil {
+		log.Fatalf("error: %v\n", err)
 	}
+
+	fmt.Println("package gen")
+	fmt.Println("import \"github.com/gin-gonic/gin\"")
+
+	schemaNames := make(map[string]*schemas.Struct)
 
 	for key, schemaRef := range doc.Components.Schemas {
 		schema := schemaRef.Value
-		fields := []Field{}
-		if schema.Type == "object" {
-			for key, schemaRef := range schema.Properties {
-				schema := schemaRef.Value
-				fields = append(fields, Field{
-					Name: key,
-					Type: Type{
-						Name: schema.Type,
-					},
-				})
-			}
-			s := Struct{
-				Name:   key,
-				Fields: fields,
-			}
-			fmt.Print(s.String())
+		switch schema.Type {
+		case "string":
+		case "number":
+		case "integer":
+		case "object":
+			s := schemas.NewStruct(key, schema)
+			name := "#/components/schemas/" + s.Name
+			schemaNames[name] = &s
+			fmt.Printf("// %v\n%v ", name, s.String())
+		case "array":
 		}
 	}
+
+	// createTemplate("openapi")
+	fmt.Println("func Route(router *gin.Engine) {")
+	for key, path := range doc.Paths {
+		printPath(key, path, schemaNames, t)
+	}
+	fmt.Println("}")
+
 }
 
-func printPath(key string, path *openapi3.PathItem) {
-	fmt.Printf("path: %v\n", key)
-	printOperation("Connect", path.Connect)
-	printOperation("Delete", path.Delete)
-	printOperation("Get", path.Get)
-	printOperation("Head", path.Head)
-	printOperation("Options", path.Options)
-	printOperation("Patch", path.Patch)
-	printOperation("Post", path.Post)
-	printOperation("Put", path.Put)
-	printOperation("Trace", path.Trace)
+type Types map[string]interface{}
+
+func ParseType(
+	name string,
+	schema openapi3.Schema,
+	pointer bool,
+	types Types,
+) interface{} {
+	return nil
+}
+
+func printPath(key string, path *openapi3.PathItem, s map[string]*schemas.Struct, t *template.Template) {
+	// fmt.Printf("path: %v\n", key)
+	// printOperation("Connect", path.Connect)
+	// printOperation("Delete", path.Delete)
+	printGet(key, path.Get, s, t)
+	// printOperation("Head", path.Head)
+	// printOperation("Options", path.Options)
+	// printOperation("Patch", path.Patch)
+	// printOperation("Post", path.Post)
+	// printOperation("Put", path.Put)
+	// printOperation("Trace", path.Trace)
 }
 
 func printOperation(verb string, operation *openapi3.Operation) {
 	if operation != nil {
-		fmt.Printf("\toperation: %v, %#v\n", verb, operation.Description)
+		fmt.Printf("//\toperation: %v, %#v\n", verb, operation.Description)
 		for key, responseRef := range operation.Responses {
 			response := responseRef.Value
 			if response != nil {
@@ -80,90 +103,104 @@ func printOperation(verb string, operation *openapi3.Operation) {
 	}
 }
 
-func WritePackage(writer io.Writer, packageName string) {
-	fmt.Fprintf(writer, "package %v\n\n", packageName)
-}
-
-type Package struct {
-	Name    string
-	Structs []Struct
-	Funcs   []Func
-}
-
-func (p *Package) String() string {
-	return Line(0, "package", p.Name) + "\n"
-}
-
-type Type struct {
-	Name    string
-	Pointer bool
-}
-
-func (t *Type) String() string {
-	if t.Pointer {
-		return "*" + t.Name
-	} else {
-		return t.Name
+func printGet(key string, operation *openapi3.Operation, s map[string]*schemas.Struct, t *template.Template) {
+	parameters := make([]*openapi3.Parameter, 0)
+	for _, parameterRef := range operation.Parameters {
+		parameter := parameterRef.Value
+		if parameter.In == openapi3.ParameterInPath {
+			parameters = append(parameters, parameter)
+		}
 	}
+
+	t.Execute(os.Stdout, map[string]interface{}{
+		"Path":       KeyToPath(key),
+		"Operation":  operation,
+		"Parameters": parameters,
+		"Query":      GetQuery(operation),
+		"Responses":  GetResponses(operation, s),
+	})
 }
 
-type Field struct {
-	Name string
-	Type Type
-	Tag  string
+func KeyToPath(key string) string {
+	key = strings.Replace(key, "}", "", -1)
+	key = strings.Replace(key, "{", ":", -1)
+	return key
 }
 
-func (f *Field) String() string {
-	if f.Tag != "" {
-		return Line(1, f.Name, f.Type.String(), Tag(f.Tag))
-	} else {
-		return Line(1, f.Name, f.Type.String())
+type QueryProperty struct {
+	Type     string
+	Property string
+}
+
+func GetQuery(operation *openapi3.Operation) map[string]QueryProperty {
+	query := make(map[string]QueryProperty)
+	parameters := array.Map(operation.Parameters, func(ref *openapi3.ParameterRef) *openapi3.Parameter {
+		return ref.Value
+	})
+	parameters = array.Filter(parameters, func(parameter *openapi3.Parameter) bool {
+		return parameter.In == openapi3.ParameterInQuery
+	})
+	array.ForEach(parameters, func(parameter *openapi3.Parameter) {
+		if parameter.Schema != nil && parameter.Schema.Value != nil {
+			schema := parameter.Schema.Value
+			query[GetPropertyName(parameter.Name)] = QueryProperty{
+				Type:     GetPropertyType(schema.Type),
+				Property: parameter.Name,
+			}
+
+		}
+	})
+	return query
+}
+
+func GetPropertyName(name string) string {
+	if len(name) < 1 {
+		return ""
 	}
+	first := name[:1]
+	rest := name[1:]
+	return strings.ToUpper(first) + rest
 }
 
-type Struct struct {
-	Name   string
-	Fields []Field
-}
-
-func (s *Struct) String() string {
-	sb := strings.Builder{}
-	sb.WriteString(Line(0, "type", s.Name, "struct {"))
-	for _, field := range s.Fields {
-		sb.WriteString(field.String())
+func GetPropertyType(name string) string {
+	switch name {
+	case "number":
+		return "float32"
+	case "integer":
+		return "int"
 	}
-	sb.WriteString("}\n\n")
-	return sb.String()
+	return name
 }
 
-type Func struct {
-	Name   string
-	Params []Type
-	Return *Type
+type ResponseOption struct {
+	Type string
 }
 
-func Tag(tag string) string {
-	return fmt.Sprintf("`%v`", tag)
-}
+func GetResponses(operation *openapi3.Operation, s map[string]*schemas.Struct) map[string]ResponseOption {
+	responseOptions := make(map[string]ResponseOption)
 
-func Json(tag string) string {
-	return fmt.Sprintf("json:\"%v\"", tag)
-}
-
-func If[T any](test bool, a T, b T) T {
-	if test {
-		return a
-	} else {
-		return b
+	for code, ref := range operation.Responses {
+		response := ref.Value
+		for key, mediaType := range response.Content {
+			if mediaType.Schema != nil {
+				schema, ok := s[mediaType.Schema.Ref]
+				if ok {
+					name := GetResponseName(code, key, operation)
+					responseOptions[name] = ResponseOption{
+						Type: schema.Name,
+					}
+				}
+			}
+		}
 	}
+
+	return responseOptions
 }
 
-func Line(indent int, values ...string) string {
-	sb := strings.Builder{}
-	for i := 0; i < indent; i++ {
-		sb.WriteString("\t")
+func GetResponseName(code string, key string, operation *openapi3.Operation) string {
+	switch key {
+	case "application/json":
+		key = "Json"
 	}
-	sb.WriteString(strings.Join(values, " "))
-	sb.WriteString("\n")
-	return sb.String()
+	return GetPropertyName(operation.OperationID) + GetPropertyName(code) + GetPropertyName(key)
 }
