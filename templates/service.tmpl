@@ -1,6 +1,6 @@
 type {{ .OperationId }}Params struct {
     {{ range .Parameters }}
-        {{ .Name }} {{ .Schema.Value.Type }}
+        {{ .Name }} {{ .Type }}
     {{ end }}
 }
 

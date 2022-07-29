@@ -1,8 +1,8 @@
 func Use{{ .OperationId }}(router *gin.Engine, service {{ .OperationId }}Service) {
     router.GET("{{ .Path }}", func(ctx *gin.Context) {
         params:= {{ .OperationId }}Params{
-            {{ range .Parameters }}
-                {{ .Name }}: ctx.Params.ByName("{{ .Name }}"),
+            {{ range .Parameters }}{{
+                .Name }}: ctx.Params.ByName("{{ .Key }}"),
             {{ end }}
         }
 

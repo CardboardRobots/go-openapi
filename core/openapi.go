@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -102,52 +101,44 @@ func printPath(key string, path *openapi3.PathItem, s map[string]*schemas.Struct
 	return endpoints
 }
 
-func printOperation(verb string, operation *openapi3.Operation) {
-	if operation != nil {
-		fmt.Printf("//\toperation: %v, %#v\n", verb, operation.Description)
-		for key, responseRef := range operation.Responses {
-			response := responseRef.Value
-			if response != nil {
-				description := *response.Description
-				fmt.Printf("\t\tresponse: %v, %v\n", key, description)
-				for key, content := range response.Content {
-					fmt.Printf("\t\t\tcontent: %v, %v\n", key, content.Schema)
-				}
-			}
-		}
-	}
-}
-
 func GetEndpoint(key string, operation *openapi3.Operation, s map[string]*schemas.Struct, t *template.Template) Endpoint {
-	parameters := make([]*openapi3.Parameter, 0)
-	for _, parameterRef := range operation.Parameters {
-		parameter := parameterRef.Value
-		if parameter.In == openapi3.ParameterInPath {
-			parameters = append(parameters, parameter)
-		}
-	}
-
 	return Endpoint{
 		OperationId: GetPropertyName(operation.OperationID),
 		Path:        KeyToPath(key),
 		Operation:   operation,
-		Parameters:  parameters,
+		Parameters:  GetParams(operation),
 		Query:       GetQuery(operation),
 		Body:        GetBody(operation),
 		Responses:   GetResponses(operation, s),
 	}
 }
 
-func printGet(key string, operation *openapi3.Operation, s map[string]*schemas.Struct, t *template.Template) {
-	endpoint := GetEndpoint(key, operation, s, t)
-	t.ExecuteTemplate(os.Stdout, "service.tmpl", endpoint)
+func GetParams(operation *openapi3.Operation) []ParamProperty {
+	parameters := make([]ParamProperty, 0)
+	for _, parameterRef := range operation.Parameters {
+		parameter := parameterRef.Value
+		if parameter.In == openapi3.ParameterInPath {
+			parameters = append(parameters, ParamProperty{
+				Name: GetPropertyName(parameter.Name),
+				Type: GetPropertyType(parameter.Schema.Value.Type),
+				Key:  parameter.Name,
+			})
+		}
+	}
+	return parameters
+}
+
+type ParamProperty struct {
+	Name string
+	Type string
+	Key  string
 }
 
 type Endpoint struct {
 	OperationId string
 	Path        string
 	Operation   *openapi3.Operation
-	Parameters  []*openapi3.Parameter
+	Parameters  []ParamProperty
 	Query       map[string]QueryProperty
 	Body        map[string]BodyProperty
 	Responses   map[string]ResponseOption
