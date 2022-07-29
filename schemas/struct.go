@@ -27,7 +27,8 @@ func NewStruct(name string, schema *openapi3.Schema) Struct {
 	for key, schemaRef := range schema.Properties {
 		schema := schemaRef.Value
 		fields[index] = Field{
-			Name: key,
+			Name: GetPropertyName(key),
+			Tag:  key,
 			Type: NewType(schema.Type, false),
 		}
 		index++
@@ -36,4 +37,13 @@ func NewStruct(name string, schema *openapi3.Schema) Struct {
 		Name:   name,
 		Fields: fields,
 	}
+}
+
+func GetPropertyName(name string) string {
+	if len(name) < 1 {
+		return ""
+	}
+	first := name[:1]
+	rest := name[1:]
+	return strings.ToUpper(first) + rest
 }

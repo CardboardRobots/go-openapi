@@ -1,24 +1,30 @@
-router.GET("{{ .Path }}", func(ctx *gin.Context) {
-    params:= {{ .OperationId }}Params{
-        {{ range .Parameters }}
-            {{ .Name }}: ctx.Params.ByName("{{ .Name }}"),
-        {{ end }}
-    }
+func Use{{ .OperationId }}(router *gin.Engine, service {{ .OperationId }}Service) {
+    router.GET("{{ .Path }}", func(ctx *gin.Context) {
+        params:= {{ .OperationId }}Params{
+            {{ range .Parameters }}
+                {{ .Name }}: ctx.Params.ByName("{{ .Name }}"),
+            {{ end }}
+        }
 
-    var query {{ .OperationId }}Query
-    err := ctx.ShouldBindQuery(&query)
+        var query {{ .OperationId }}Query
+        errQuery := ctx.ShouldBindQuery(&query)
 
-    var body {{ .OperationId }}Body
-    err := ctx.ShouldBind(&body)
+        var body {{ .OperationId }}Body
+        errBody := ctx.ShouldBind(&body)
 
-    request := {{ .OperationId }}Request{
-        params,
-        query,
-        body,
-    }
+        request := {{ .OperationId }}Request{
+            params,
+            query,
+            body,
+        }
 
-    var service {{ .OperationId }}Service
-    response := service.{{ .OperationId }}(ctx.Request.Context(), request)
+        err := errQuery
+        if err == nil {
+            err = errBody
+        }
 
-    ctx.IndentedJson(http.StatusOk, response)
-})
+        response := service.{{ .OperationId }}(ctx.Request.Context(), request, err)
+
+        ctx.IndentedJson(http.StatusOK, response)
+    })
+}

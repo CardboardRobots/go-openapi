@@ -29,6 +29,10 @@ type {{ .OperationId }}Response struct {
 }
 
 type {{ .OperationId }}Service interface {
-    {{ .OperationId }}(ctx context.Context, request {{ .OperationId }}Request) {{ .OperationId }}Response
+    {{ .OperationId }}(
+        ctx context.Context,
+        request {{ .OperationId }}Request,
+        err error,
+    ) {{ .OperationId }}Response
 }
 

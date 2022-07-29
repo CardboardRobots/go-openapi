@@ -17,9 +17,11 @@ func NewType(name string, pointer bool) Type {
 	switch name {
 	case "string":
 	case "number":
+		name = "float64"
 	case "integer":
-		name = "number"
+		name = "int"
 	case "boolean":
+		name = "bool"
 	case "array":
 	case "object":
 	}

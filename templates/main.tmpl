@@ -2,17 +2,16 @@ package gen
 
 import (
     "context"
-    "http"
+    "net/http"
 
     "github.com/gin-gonic/gin"
 )
 
-{{ range .Endpoints }}
-    {{ template "service.tmpl" . }}
+{{ range .Structs }}
+    {{ template "component.tmpl" . }}
 {{ end }}
 
-func NewRoutes(router *gin.Engine) {
 {{ range .Endpoints }}
+    {{ template "service.tmpl" . }}
     {{ template "route.tmpl" . }}
 {{ end }}
-}
