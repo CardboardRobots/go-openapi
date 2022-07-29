@@ -24,7 +24,11 @@ func Use{{ .OperationId }}(router *gin.Engine, service {{ .OperationId }}Service
         }
 
         response := service.{{ .OperationId }}(ctx.Request.Context(), request, err)
-
-        ctx.IndentedJSON(http.StatusOK, response)
+        {{ range $key, $value := .Responses }}
+        if response.{{ $value.Type }} != nil {
+            ctx.IndentedJSON(http.StatusOK, response.{{ $value.Type }})
+            return
+        }{{ end }}
+        ctx.IndentedJSON(http.StatusInternalServerError, nil)
     })
 }

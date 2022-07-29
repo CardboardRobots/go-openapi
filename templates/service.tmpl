@@ -5,15 +5,13 @@ type {{ .OperationId }}Params struct {
 }
 
 type {{ .OperationId }}Query struct {
-    {{ range $key, $value := .Query }}
-        {{ $key }} {{ $value.Type }} `form:"{{ $value.Property }}"`
-    {{ end }}
+{{ range $key, $value := .Query }}
+    {{ $key }} {{ $value.Type }} `form:"{{ $value.Property }}"`{{ end }}
 }
 
 type {{ .OperationId }}Body struct {
-    {{ range $key, $value := .Body }}
-        {{ $key }} {{ $value.Type }} `form:"{{ $value.Property }}"`
-    {{ end }}
+{{ range $key, $value := .Body }}
+    {{ $key }} {{ $value.Type }} `form:"{{ $value.Property }}"`{{ end }}
 }
 
 type {{ .OperationId }}Request struct {
@@ -23,9 +21,8 @@ type {{ .OperationId }}Request struct {
 }
 
 type {{ .OperationId }}Response struct {
-    {{ range $key, $value := .Responses }}
-        {{ $key }} *{{ $value.Type }}
-    {{ end }}
+{{ range $key, $value := .Responses }}
+    *{{ $value.Type }}{{ end }}
 }
 
 type {{ .OperationId }}Service interface {
