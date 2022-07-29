@@ -25,6 +25,6 @@ func Use{{ .OperationId }}(router *gin.Engine, service {{ .OperationId }}Service
 
         response := service.{{ .OperationId }}(ctx.Request.Context(), request, err)
 
-        ctx.IndentedJson(http.StatusOK, response)
+        ctx.IndentedJSON(http.StatusOK, response)
     })
 }

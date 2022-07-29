@@ -1,4 +1,4 @@
 .PHONY: build
 build:
-	go run ./cmd > gen.go
+	go run .
 	go fmt gen.go

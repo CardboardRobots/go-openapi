@@ -1,7 +1,9 @@
 package core
 
 import (
+	"bufio"
 	"context"
+	"io/fs"
 	"log"
 	"os"
 	"strings"
@@ -13,7 +15,7 @@ import (
 	"github.com/cardboardrobots/go-openapi/schemas"
 )
 
-func ParseDocument(ctx context.Context) {
+func ParseDocument(ctx context.Context, fsys fs.FS) {
 	loader := openapi3.Loader{Context: ctx}
 
 	fileName := "openapi.yml"
@@ -28,7 +30,12 @@ func ParseDocument(ctx context.Context) {
 		log.Fatalf("error: %v\n", err)
 	}
 
-	t, err := template.ParseFS(os.DirFS("./templates"), "*.tmpl")
+	// content holds our static web server content.
+	t, err := template.ParseFS(
+		fsys,
+		// os.DirFS("./templates"),
+		"templates/*.tmpl",
+	)
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 	}
@@ -64,8 +71,17 @@ func ParseDocument(ctx context.Context) {
 		Structs:   structs,
 		Endpoints: endpoints,
 	}
-	t.ExecuteTemplate(os.Stdout, "main.tmpl", data)
+
+	f, err := os.Create("./gen.go")
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	writer := bufio.NewWriter(f)
+	t.ExecuteTemplate(writer, "main.tmpl", data)
 	// fmt.Println("}")
+	writer.Flush()
 
 }
 
