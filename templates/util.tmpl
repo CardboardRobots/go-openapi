@@ -1,0 +1,5 @@
+func GetInteger(ctx *gin.Context, name string) int {
+	value := ctx.Param(name)
+	result, _ := strconv.Atoi(value)
+	return result
+}

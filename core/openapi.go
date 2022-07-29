@@ -2,7 +2,9 @@ package core
 
 import (
 	"bufio"
+	"bytes"
 	"context"
+	"go/format"
 	"io/fs"
 	"log"
 	"os"
@@ -58,7 +60,6 @@ func ParseDocument(ctx context.Context, fsys fs.FS) {
 	}
 
 	// createTemplate("openapi")
-	// fmt.Println("func Route(router *gin.Engine) {")
 	endpoints := make([]Endpoint, 0)
 	for key, path := range doc.Paths {
 		e := printPath(key, path, schemaNames, t)
@@ -70,6 +71,13 @@ func ParseDocument(ctx context.Context, fsys fs.FS) {
 		Endpoints: endpoints,
 	}
 
+	buffer := bytes.NewBufferString("")
+	t.ExecuteTemplate(buffer, "main.tmpl", data)
+	bytes, err := format.Source(buffer.Bytes())
+	if err != nil {
+		return
+	}
+
 	f, err := os.Create("./gen.go")
 	if err != nil {
 		return
@@ -77,10 +85,8 @@ func ParseDocument(ctx context.Context, fsys fs.FS) {
 	defer f.Close()
 
 	writer := bufio.NewWriter(f)
-	t.ExecuteTemplate(writer, "main.tmpl", data)
-	// fmt.Println("}")
+	writer.Write(bytes)
 	writer.Flush()
-
 }
 
 func printPath(key string, path *openapi3.PathItem, s map[string]*schemas.Struct, t *template.Template) []Endpoint {

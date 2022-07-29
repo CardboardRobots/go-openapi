@@ -3,9 +3,12 @@ package gen
 import (
     "context"
     "net/http"
+    "strconv"
 
     "github.com/gin-gonic/gin"
 )
+
+{{ template "util.tmpl" . }}
 
 {{ range .Structs }}
     {{ template "component.tmpl" . }}

@@ -1,8 +1,12 @@
 func Use{{ .OperationId }}(router *gin.Engine, service {{ .OperationId }}Service) {
     router.GET("{{ .Path }}", func(ctx *gin.Context) {
         params:= {{ .OperationId }}Params{
-            {{ range .Parameters }}{{
-                .Name }}: ctx.Params.ByName("{{ .Key }}"),
+            {{ range .Parameters }}
+                {{ if eq .Type "int" }}
+                    {{ .Name }}: GetInteger(ctx, "{{ .Key }}"),
+                {{ else }}
+                    {{ .Name }}: ctx.Param("{{ .Key }}"),
+                {{ end }}
             {{ end }}
         }
 
