@@ -15,12 +15,17 @@ import (
 	"github.com/cardboardrobots/go-openapi/schemas"
 )
 
-func ParseDocument(ctx context.Context, fsys fs.FS) {
+type ParseOptions struct {
+	Input   string
+	Output  string
+	Package string
+}
+
+func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 	loader := openapi3.Loader{Context: ctx}
 
-	fileName := "openapi.yml"
-	log.Printf("Loading %v...\n", fileName)
-	doc, err := loader.LoadFromFile(fileName)
+	log.Printf("Loading %v...\n", options.Input)
+	doc, err := loader.LoadFromFile(options.Input)
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 	}
@@ -67,6 +72,7 @@ func ParseDocument(ctx context.Context, fsys fs.FS) {
 	}
 
 	data := TemplateData{
+		Package:   options.Package,
 		Structs:   structs,
 		Endpoints: endpoints,
 	}
@@ -78,7 +84,7 @@ func ParseDocument(ctx context.Context, fsys fs.FS) {
 		return
 	}
 
-	f, err := os.Create("./gen.go")
+	f, err := os.Create(options.Output)
 	if err != nil {
 		return
 	}
