@@ -12,7 +12,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 
-	"github.com/cardboardrobots/go-openapi/schemas"
+	"github.com/cardboardrobots/go-openapi/entity"
 )
 
 type ParseOptions struct {
@@ -45,9 +45,9 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 		log.Fatalf("error: %v\n", err)
 	}
 
-	schemaNames := make(map[string]*schemas.Struct)
+	schemaNames := make(map[string]*entity.Struct)
 
-	structs := make([]*schemas.Struct, 0)
+	structs := make([]*entity.Struct, 0)
 	for key, schemaRef := range doc.Components.Schemas {
 		schema := schemaRef.Value
 		switch schema.Type {
@@ -55,7 +55,7 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 		case "number":
 		case "integer":
 		case "object":
-			s := schemas.NewStruct(key, schema)
+			s := SchemaToStruct(key, schema)
 			name := "#/components/schemas/" + s.Name
 			schemaNames[name] = &s
 			structs = append(structs, &s)
@@ -95,7 +95,7 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 	writer.Flush()
 }
 
-func printPath(key string, path *openapi3.PathItem, s map[string]*schemas.Struct, t *template.Template) []Endpoint {
+func printPath(key string, path *openapi3.PathItem, s map[string]*entity.Struct, t *template.Template) []Endpoint {
 	endpoints := make([]Endpoint, 0)
 	// fmt.Printf("path: %v\n", key)
 	// printOperation("Connect", path.Connect)

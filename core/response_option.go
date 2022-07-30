@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/cardboardrobots/go-openapi/schemas"
+	"github.com/cardboardrobots/go-openapi/entity"
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
@@ -9,7 +9,7 @@ type ResponseOption struct {
 	Type string
 }
 
-func GetResponses(operation *openapi3.Operation, s map[string]*schemas.Struct) map[string]ResponseOption {
+func GetResponses(operation *openapi3.Operation, s map[string]*entity.Struct) map[string]ResponseOption {
 	responseOptions := make(map[string]ResponseOption)
 
 	for code, ref := range operation.Responses {
