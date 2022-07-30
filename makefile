@@ -1,3 +1,3 @@
 .PHONY: build
 build:
-	go run .
+	go run . -o gen/gen.go -p gen
