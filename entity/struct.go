@@ -59,6 +59,12 @@ func NewStructSchema(
 	}
 }
 
+func NewArraySchema(
+	id string,
+	name string,
+	slice bool,
+)
+
 type Struct struct {
 	Name   string
 	Fields []Field
