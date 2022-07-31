@@ -8,33 +8,65 @@ import (
 func (p *SchemaParser) AddBoolean(
 	id string,
 	schema *openapi3.Schema,
-) entity.Schema {
+) *entity.Schema {
+	item := p.GetById(id)
+	if item != nil {
+		return item
+	}
+
 	name := GetSchemaName(id)
-	return entity.NewBooleanSchema(id, name)
+	newItem := entity.NewBooleanSchema(id, name)
+
+	p.SetById(id, &newItem)
+	return &newItem
 }
 
 func (p *SchemaParser) AddInteger(
 	id string,
 	schema *openapi3.Schema,
-) entity.Schema {
+) *entity.Schema {
+	item := p.GetById(id)
+	if item != nil {
+		return item
+	}
+
 	name := GetSchemaName(id)
-	return entity.NewIntegerSchema(id, name)
+	newItem := entity.NewIntegerSchema(id, name)
+
+	p.SetById(id, &newItem)
+	return &newItem
 }
 
 func (p *SchemaParser) AddFloat(
 	id string,
 	schema *openapi3.Schema,
-) entity.Schema {
+) *entity.Schema {
+	item := p.GetById(id)
+	if item != nil {
+		return item
+	}
+
 	name := GetSchemaName(id)
-	return entity.NewFloatSchema(id, name)
+	newItem := entity.NewFloatSchema(id, name)
+
+	p.SetById(id, &newItem)
+	return &newItem
 }
 
 func (p *SchemaParser) AddString(
 	id string,
 	schema *openapi3.Schema,
-) entity.Schema {
+) *entity.Schema {
+	item := p.GetById(id)
+	if item != nil {
+		return item
+	}
+
 	name := GetSchemaName(id)
-	return entity.NewFloatSchema(id, name)
+	newItem := entity.NewFloatSchema(id, name)
+
+	p.SetById(id, &newItem)
+	return &newItem
 }
 
 func (p *SchemaParser) AddObject(
@@ -61,18 +93,25 @@ func (p *SchemaParser) AddObject(
 		index++
 	}
 
-	item = entity.NewObjectSchema(id, name, fields)
-	p.SetById(id, item)
-	return item
+	newItem := entity.NewObjectSchema(id, name, fields)
+
+	p.SetById(id, &newItem)
+	return &newItem
 }
 
 func (p *SchemaParser) AddArray(
 	id string,
 	schema *openapi3.Schema,
 	s map[string]*entity.Schema,
-) entity.Schema {
+) *entity.Schema {
+	item := p.GetById(id)
+	if item != nil {
+		return item
+	}
+
 	name := GetSchemaName(id)
-	return entity.NewArraySchema(
-		id, name, nil,
-	)
+	newItem := entity.NewArraySchema(id, name, nil)
+
+	p.SetById(id, &newItem)
+	return &newItem
 }

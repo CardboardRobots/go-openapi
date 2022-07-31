@@ -62,8 +62,8 @@ func NewObjectSchema(
 	id string,
 	name string,
 	fields []Field,
-) *Schema {
-	return &Schema{
+) Schema {
+	return Schema{
 		Id:     id,
 		Name:   name,
 		Type:   TYPE_OBJECT,
