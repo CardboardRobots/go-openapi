@@ -5,27 +5,67 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-func SchemaToStruct(name string, schema *openapi3.Schema) entity.Struct {
+type SchemaParser struct {
+	schemas map[string]*entity.Schema
+}
+
+func (p *SchemaParser) GetById(id string) *entity.Schema {
+	schema, ok := p.schemas[id]
+	if !ok {
+		return nil
+	}
+	return schema
+}
+
+func (p *SchemaParser) SetById(id string, schema *entity.Schema) {
+	p.schemas[id] = schema
+}
+
+func (p *SchemaParser) AddSchema(id string, schema *openapi3.Schema) entity.Schema {
+	return entity.Schema{}
+}
+
+func SchemaToBoolean(name string, schema *openapi3.Schema) entity.Schema {
+	return entity.NewBooleanSchema(name, name)
+}
+
+func (p *SchemaParser) AddBoolean(id string, schema *openapi3.Schema) entity.Schema {
+	value := SchemaToBoolean(id, schema)
+	p.schemas[id] = &value
+	return value
+}
+
+func SchemaToInteger(name string, schema *openapi3.Schema) entity.Schema {
+	return entity.NewIntegerSchema(name, name)
+}
+
+func SchemaToFloat(name string, schema *openapi3.Schema) entity.Schema {
+	return entity.NewFloatSchema(name, name)
+}
+
+func SchhemaToString(name string, schema *openapi3.Schema) entity.Schema {
+	return entity.NewFloatSchema(name, name)
+}
+
+func SchemaToObject(name string, schema *openapi3.Schema) entity.Schema {
 	fields := make([]entity.Field, len(schema.Properties))
 	index := 0
-	for key, schemaRef := range schema.Properties {
-		schema := schemaRef.Value
+	for key := range schema.Properties {
+		// schema := schemaRef.Value
+		// name := schemaRef.Ref
+		// if name is empty, this is not a true ref
 		fields[index] = entity.Field{
 			Name: GetPropertyName(key),
 			Tag:  key,
-			Type: GetPropertyType(schema.Type),
+			// Type: GetPropertyType(schema.Type),
 		}
 		index++
 	}
-	return entity.Struct{
-		Name:   name,
-		Fields: fields,
-	}
+	return entity.NewObjectSchema(name, name, fields)
 }
 
-func SchemaToSlice(name string, schema *openapi3.Schema, s map[string]*entity.Struct) entity.Slice {
-	return entity.Slice{
-		Name: name,
-		Type: s[schema.Items.Ref].Name,
-	}
+func SchemaToArray(name string, schema *openapi3.Schema, s map[string]*entity.Schema) entity.Schema {
+	return entity.NewArraySchema(
+		name, name, nil,
+	)
 }

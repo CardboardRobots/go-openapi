@@ -4,6 +4,6 @@ import "github.com/cardboardrobots/go-openapi/entity"
 
 type TemplateData struct {
 	Package   string
-	Structs   []*entity.Struct
+	Structs   []*entity.Schema
 	Endpoints []Endpoint
 }

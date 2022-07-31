@@ -8,7 +8,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-func GetEndpoint(key string, operation *openapi3.Operation, s map[string]*entity.Struct, t *template.Template) Endpoint {
+func GetEndpoint(key string, operation *openapi3.Operation, s map[string]*entity.Schema, t *template.Template) Endpoint {
 	return Endpoint{
 		OperationId: GetPropertyName(operation.OperationID),
 		Path:        KeyToPath(key),

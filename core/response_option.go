@@ -9,7 +9,7 @@ type ResponseOption struct {
 	Type string
 }
 
-func GetResponses(operation *openapi3.Operation, s map[string]*entity.Struct) map[string]ResponseOption {
+func GetResponses(operation *openapi3.Operation, s map[string]*entity.Schema) map[string]ResponseOption {
 	responseOptions := make(map[string]ResponseOption)
 
 	for code, ref := range operation.Responses {

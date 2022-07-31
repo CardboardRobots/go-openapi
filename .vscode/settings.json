@@ -1,0 +1,13 @@
+{
+    "[go]": {
+        "editor.insertSpaces": false,
+        "editor.formatOnPaste": true,
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        },
+        "editor.suggest.snippetsPreventQuickSuggestions": false,
+        "editor.wordWrap": "on",
+        "editor.tabSize": 2
+    }
+}

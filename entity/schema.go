@@ -5,26 +5,40 @@ type Schema struct {
 	Name   string
 	Type   SchemaType
 	Fields []Field
-	Slice  bool
+	Items  *Schema
+}
+
+type Field struct {
+	Name string
+	Type *Schema
+	Tag  string
+}
+
+func NewBooleanSchema(
+	id string,
+	name string,
+) Schema {
+	return Schema{
+		Id:   id,
+		Name: name,
+		Type: TYPE_BOOLEAN,
+	}
 }
 
 func NewFloatSchema(
 	id string,
 	name string,
-	slice bool,
 ) Schema {
 	return Schema{
-		Id:    id,
-		Name:  name,
-		Type:  TYPE_NUMBER,
-		Slice: slice,
+		Id:   id,
+		Name: name,
+		Type: TYPE_NUMBER,
 	}
 }
 
 func NewIntegerSchema(
 	id string,
 	name string,
-	slice bool,
 ) Schema {
 	return Schema{
 		Id:   id,
@@ -36,7 +50,6 @@ func NewIntegerSchema(
 func NewStringSchema(
 	id string,
 	name string,
-	slice bool,
 ) Schema {
 	return Schema{
 		Id:   id,
@@ -45,10 +58,9 @@ func NewStringSchema(
 	}
 }
 
-func NewStructSchema(
+func NewObjectSchema(
 	id string,
 	name string,
-	slice bool,
 	fields []Field,
 ) Schema {
 	return Schema{
@@ -62,10 +74,12 @@ func NewStructSchema(
 func NewArraySchema(
 	id string,
 	name string,
-	slice bool,
-)
-
-type Struct struct {
-	Name   string
-	Fields []Field
+	items *Schema,
+) Schema {
+	return Schema{
+		Id:    id,
+		Name:  name,
+		Type:  TYPE_ARRAY,
+		Items: items,
+	}
 }

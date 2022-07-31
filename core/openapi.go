@@ -45,9 +45,9 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 		log.Fatalf("error: %v\n", err)
 	}
 
-	schemaNames := make(map[string]*entity.Struct)
+	schemaNames := make(map[string]*entity.Schema)
 
-	structs := make([]*entity.Struct, 0)
+	structs := make([]*entity.Schema, 0)
 	for key, schemaRef := range doc.Components.Schemas {
 		schema := schemaRef.Value
 		switch schema.Type {
@@ -55,7 +55,7 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 		case "number":
 		case "integer":
 		case "object":
-			s := SchemaToStruct(key, schema)
+			s := SchemaToObject(key, schema)
 			name := "#/components/schemas/" + s.Name
 			schemaNames[name] = &s
 			structs = append(structs, &s)
@@ -95,7 +95,7 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 	writer.Flush()
 }
 
-func printPath(key string, path *openapi3.PathItem, s map[string]*entity.Struct, t *template.Template) []Endpoint {
+func printPath(key string, path *openapi3.PathItem, s map[string]*entity.Schema, t *template.Template) []Endpoint {
 	endpoints := make([]Endpoint, 0)
 	// fmt.Printf("path: %v\n", key)
 	// printOperation("Connect", path.Connect)
