@@ -10,7 +10,6 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/cardboardrobots/go-openapi/entity"
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
@@ -42,17 +41,10 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 	schemaParser := NewSchemaParser()
 	schemaParser.Parse(doc)
 
-	// createTemplate("openapi")
-	endpoints := make([]Endpoint, 0)
-	for key, path := range doc.Paths {
-		e := PrintPath(key, path, schemaParser.schemas, t)
-		endpoints = append(endpoints, e...)
-	}
-
 	data := TemplateData{
 		Package:   options.Package,
 		Structs:   schemaParser.GetSchemas(),
-		Endpoints: endpoints,
+		Endpoints: schemaParser.GetEndpoints(),
 	}
 
 	log.Println("generating output...")
@@ -79,20 +71,4 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 	writer := bufio.NewWriter(f)
 	writer.Write(bytes)
 	writer.Flush()
-}
-
-func PrintPath(key string, path *openapi3.PathItem, s map[string]*entity.Schema, t *template.Template) []Endpoint {
-	endpoints := make([]Endpoint, 0)
-	// fmt.Printf("path: %v\n", key)
-	// printOperation("Connect", path.Connect)
-	// printOperation("Delete", path.Delete)
-	endpoint := GetEndpoint(key, path.Get, s, t)
-	endpoints = append(endpoints, endpoint)
-	// printOperation("Head", path.Head)
-	// printOperation("Options", path.Options)
-	// printOperation("Patch", path.Patch)
-	// printOperation("Post", path.Post)
-	// printOperation("Put", path.Put)
-	// printOperation("Trace", path.Trace)
-	return endpoints
 }

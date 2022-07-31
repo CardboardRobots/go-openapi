@@ -6,12 +6,14 @@ import (
 )
 
 type SchemaParser struct {
-	schemas map[string]*entity.Schema
+	schemas   map[string]*entity.Schema
+	endpoints []*Endpoint
 }
 
 func NewSchemaParser() SchemaParser {
 	return SchemaParser{
-		schemas: make(map[string]*entity.Schema),
+		schemas:   make(map[string]*entity.Schema),
+		endpoints: make([]*Endpoint, 0),
 	}
 }
 
@@ -37,10 +39,31 @@ func (p *SchemaParser) GetSchemas() []*entity.Schema {
 	return schemas
 }
 
+func (p *SchemaParser) GetEndpoints() []*Endpoint {
+	return p.endpoints
+}
+
 func (p *SchemaParser) Parse(doc *openapi3.T) {
 	for name, schemaRef := range doc.Components.Schemas {
 		p.Add(name, schemaRef)
 	}
+	for key, path := range doc.Paths {
+		p.AddEndpoint(key, path, p.schemas)
+	}
+}
+
+func (p *SchemaParser) AddEndpoint(key string, path *openapi3.PathItem, s map[string]*entity.Schema) {
+	// fmt.Printf("path: %v\n", key)
+	// printOperation("Connect", path.Connect)
+	// printOperation("Delete", path.Delete)
+	endpoint := p.GetEndpoint(key, path.Get)
+	p.endpoints = append(p.endpoints, &endpoint)
+	// printOperation("Head", path.Head)
+	// printOperation("Options", path.Options)
+	// printOperation("Patch", path.Patch)
+	// printOperation("Post", path.Post)
+	// printOperation("Put", path.Put)
+	// printOperation("Trace", path.Trace)
 }
 
 func (p *SchemaParser) Add(name string, schemaRef *openapi3.SchemaRef) *entity.Schema {
@@ -61,4 +84,16 @@ func (p *SchemaParser) Add(name string, schemaRef *openapi3.SchemaRef) *entity.S
 		return p.AddArray(ref, name, schema)
 	}
 	return nil
+}
+
+func (p *SchemaParser) GetEndpoint(key string, operation *openapi3.Operation) Endpoint {
+	return Endpoint{
+		OperationId: GetPropertyName(operation.OperationID),
+		Path:        KeyToPath(key),
+		Operation:   operation,
+		Parameters:  GetParams(operation),
+		Query:       GetQuery(operation),
+		Body:        GetBody(operation),
+		Responses:   GetResponses(operation, p.schemas),
+	}
 }
