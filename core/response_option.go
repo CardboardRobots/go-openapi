@@ -16,7 +16,8 @@ func GetResponses(operation *openapi3.Operation, s map[string]*entity.Schema) ma
 		response := ref.Value
 		for key, mediaType := range response.Content {
 			if mediaType.Schema != nil {
-				schema, ok := s[mediaType.Schema.Ref]
+				name := GetSchemaName(mediaType.Schema.Ref)
+				schema, ok := s[name]
 				if ok {
 					name := GetResponseName(code, key)
 					responseOptions[name] = ResponseOption{
