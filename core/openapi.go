@@ -42,27 +42,31 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 	schemaParser := NewSchemaParser()
 	schemaParser.Parse(doc)
 
-	schemaNames := make(map[string]*entity.Schema)
-
-	structs := make([]*entity.Schema, 0)
-
 	// createTemplate("openapi")
 	endpoints := make([]Endpoint, 0)
 	for key, path := range doc.Paths {
-		e := printPath(key, path, schemaNames, t)
+		e := PrintPath(key, path, schemaParser.schemas, t)
 		endpoints = append(endpoints, e...)
 	}
 
 	data := TemplateData{
 		Package:   options.Package,
-		Structs:   structs,
+		Structs:   schemaParser.GetSchemas(),
 		Endpoints: endpoints,
 	}
 
+	log.Println("generating output...")
 	buffer := bytes.NewBufferString("")
-	t.ExecuteTemplate(buffer, "main.tmpl", data)
+	err = t.ExecuteTemplate(buffer, "main.tmpl", data)
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
 	bytes, err := format.Source(buffer.Bytes())
 	if err != nil {
+		log.Print(buffer)
+		log.Fatalf("%v", err)
 		return
 	}
 
@@ -77,7 +81,7 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 	writer.Flush()
 }
 
-func printPath(key string, path *openapi3.PathItem, s map[string]*entity.Schema, t *template.Template) []Endpoint {
+func PrintPath(key string, path *openapi3.PathItem, s map[string]*entity.Schema, t *template.Template) []Endpoint {
 	endpoints := make([]Endpoint, 0)
 	// fmt.Printf("path: %v\n", key)
 	// printOperation("Connect", path.Connect)

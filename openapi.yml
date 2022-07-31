@@ -96,9 +96,7 @@ components:
         email:
           type: string
         roles:
-          type: array
-          items:
-            string
+          type: string
     CreateUserData:
       type: object
       required:

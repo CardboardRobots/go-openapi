@@ -6,111 +6,136 @@ import (
 )
 
 func (p *SchemaParser) AddBoolean(
-	id string,
+	ref string,
+	name string,
 	schema *openapi3.Schema,
 ) *entity.Schema {
-	item := p.GetById(id)
+	if name == "" {
+		name = GetSchemaName(ref)
+	}
+
+	item := p.GetById(name)
 	if item != nil {
 		return item
 	}
 
-	name := GetSchemaName(id)
-	newItem := entity.NewBooleanSchema(id, name)
+	newItem := entity.NewBooleanSchema(ref, name)
 
-	p.SetById(id, &newItem)
+	p.SetById(name, &newItem)
 	return &newItem
 }
 
 func (p *SchemaParser) AddInteger(
-	id string,
+	ref string,
+	name string,
 	schema *openapi3.Schema,
 ) *entity.Schema {
-	item := p.GetById(id)
+	if name == "" {
+		name = GetSchemaName(ref)
+	}
+
+	item := p.GetById(name)
 	if item != nil {
 		return item
 	}
 
-	name := GetSchemaName(id)
-	newItem := entity.NewIntegerSchema(id, name)
+	newItem := entity.NewIntegerSchema(ref, name)
 
-	p.SetById(id, &newItem)
+	p.SetById(name, &newItem)
 	return &newItem
 }
 
 func (p *SchemaParser) AddFloat(
-	id string,
+	ref string,
+	name string,
 	schema *openapi3.Schema,
 ) *entity.Schema {
-	item := p.GetById(id)
+	if name == "" {
+		name = GetSchemaName(ref)
+	}
+
+	item := p.GetById(name)
 	if item != nil {
 		return item
 	}
 
-	name := GetSchemaName(id)
-	newItem := entity.NewFloatSchema(id, name)
+	newItem := entity.NewFloatSchema(ref, name)
 
-	p.SetById(id, &newItem)
+	p.SetById(name, &newItem)
 	return &newItem
 }
 
 func (p *SchemaParser) AddString(
-	id string,
+	ref string,
+	name string,
 	schema *openapi3.Schema,
 ) *entity.Schema {
-	item := p.GetById(id)
+	if name == "" {
+		name = GetSchemaName(ref)
+	}
+
+	item := p.GetById(name)
 	if item != nil {
 		return item
 	}
 
-	name := GetSchemaName(id)
-	newItem := entity.NewFloatSchema(id, name)
+	newItem := entity.NewFloatSchema(ref, name)
 
-	p.SetById(id, &newItem)
+	p.SetById(name, &newItem)
 	return &newItem
 }
 
 func (p *SchemaParser) AddObject(
-	id string,
+	ref string,
+	name string,
 	schema *openapi3.Schema,
 ) *entity.Schema {
-	item := p.GetById(id)
+	if name == "" {
+		name = GetSchemaName(ref)
+	}
+	item := p.GetById(name)
 	if item != nil {
 		return item
 	}
 
-	name := GetSchemaName(id)
 	fields := make([]entity.Field, len(schema.Properties))
 	index := 0
-	for key := range schema.Properties {
-		// schema := schemaRef.Value
+	for key, schemaRef := range schema.Properties {
+		schema := schemaRef.Value
 		// name := schemaRef.Ref
 		// if name is empty, this is not a true ref
 		fields[index] = entity.Field{
 			Name: GetPropertyName(key),
 			Tag:  key,
-			// Type: GetPropertyType(schema.Type),
+			Type: GetPropertyType(schema.Type),
 		}
 		index++
 	}
 
-	newItem := entity.NewObjectSchema(id, name, fields)
+	newItem := entity.NewObjectSchema(ref, name, fields)
 
-	p.SetById(id, &newItem)
+	p.SetById(name, &newItem)
 	return &newItem
 }
 
 func (p *SchemaParser) AddArray(
-	id string,
+	ref string,
+	name string,
 	schema *openapi3.Schema,
 ) *entity.Schema {
-	item := p.GetById(id)
+	if name == "" {
+		name = GetSchemaName(ref)
+	}
+
+	item := p.GetById(name)
 	if item != nil {
 		return item
 	}
 
-	name := GetSchemaName(id)
-	newItem := entity.NewArraySchema(id, name, nil)
+	items := p.Add("", schema.Items)
 
-	p.SetById(id, &newItem)
+	newItem := entity.NewArraySchema(ref, name, items)
+
+	p.SetById(name, &newItem)
 	return &newItem
 }

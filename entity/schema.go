@@ -8,12 +8,6 @@ type Schema struct {
 	Items  *Schema
 }
 
-type Field struct {
-	Name string
-	Type *Schema
-	Tag  string
-}
-
 func NewBooleanSchema(
 	id string,
 	name string,
