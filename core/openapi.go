@@ -40,25 +40,11 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 	}
 
 	schemaParser := NewSchemaParser()
+	schemaParser.Parse(doc)
 
 	schemaNames := make(map[string]*entity.Schema)
 
 	structs := make([]*entity.Schema, 0)
-	for key, schemaRef := range doc.Components.Schemas {
-		schema := schemaRef.Value
-		switch schema.Type {
-		case "string":
-		case "number":
-		case "integer":
-		case "object":
-			s := schemaParser.AddObject(key, schema)
-			name := "#/components/schemas/" + s.Name
-			schemaNames[name] = &s
-			structs = append(structs, &s)
-			// fmt.Printf("// %v\n%v ", name, s.String())
-		case "array":
-		}
-	}
 
 	// createTemplate("openapi")
 	endpoints := make([]Endpoint, 0)

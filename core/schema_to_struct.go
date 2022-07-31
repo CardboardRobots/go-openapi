@@ -40,7 +40,12 @@ func (p *SchemaParser) AddString(
 func (p *SchemaParser) AddObject(
 	id string,
 	schema *openapi3.Schema,
-) entity.Schema {
+) *entity.Schema {
+	item := p.GetById(id)
+	if item != nil {
+		return item
+	}
+
 	name := GetSchemaName(id)
 	fields := make([]entity.Field, len(schema.Properties))
 	index := 0
@@ -55,7 +60,10 @@ func (p *SchemaParser) AddObject(
 		}
 		index++
 	}
-	return entity.NewObjectSchema(id, name, fields)
+
+	item = entity.NewObjectSchema(id, name, fields)
+	p.SetById(id, item)
+	return item
 }
 
 func (p *SchemaParser) AddArray(
