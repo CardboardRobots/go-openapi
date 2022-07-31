@@ -102,7 +102,6 @@ func (p *SchemaParser) AddObject(
 func (p *SchemaParser) AddArray(
 	id string,
 	schema *openapi3.Schema,
-	s map[string]*entity.Schema,
 ) *entity.Schema {
 	item := p.GetById(id)
 	if item != nil {

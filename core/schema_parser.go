@@ -31,12 +31,18 @@ func (p *SchemaParser) Parse(doc *openapi3.T) {
 	for key, schemaRef := range doc.Components.Schemas {
 		schema := schemaRef.Value
 		switch schema.Type {
+		case "boolean":
+			p.AddBoolean(key, schema)
 		case "string":
+			p.AddString(key, schema)
 		case "number":
+			p.AddFloat(key, schema)
 		case "integer":
+			p.AddInteger(key, schema)
 		case "object":
 			p.AddObject(key, schema)
 		case "array":
+			p.AddArray(key, schema)
 		}
 	}
 }
