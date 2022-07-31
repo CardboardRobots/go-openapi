@@ -10,9 +10,8 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/getkin/kin-openapi/openapi3"
-
 	"github.com/cardboardrobots/go-openapi/entity"
+	"github.com/getkin/kin-openapi/openapi3"
 )
 
 type ParseOptions struct {
@@ -35,15 +34,12 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 		log.Fatalf("error: %v\n", err)
 	}
 
-	// content holds our static web server content.
-	t, err := template.ParseFS(
-		fsys,
-		// os.DirFS("./templates"),
-		"templates/*.tmpl",
-	)
+	t, err := template.ParseFS(fsys, "templates/*.tmpl")
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 	}
+
+	schemaParser := NewSchemaParser()
 
 	schemaNames := make(map[string]*entity.Schema)
 
@@ -55,7 +51,7 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 		case "number":
 		case "integer":
 		case "object":
-			s := SchemaToObject(key, schema)
+			s := schemaParser.AddObject(key, schema)
 			name := "#/components/schemas/" + s.Name
 			schemaNames[name] = &s
 			structs = append(structs, &s)

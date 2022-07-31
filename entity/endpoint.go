@@ -12,23 +12,23 @@ type Endpoint struct {
 type ParamProperty struct {
 	Name string
 	Key  string
-	Type string
+	Type *Schema
 }
 
 type QueryProperty struct {
 	Name string
 	Key  string
-	Type string
+	Type *Schema
 }
 
 type BodyProperty struct {
 	Name string
 	Key  string
-	Type string
+	Type *Schema
 }
 
 type ResponseOption struct {
 	Code int
 	Name string
-	Type string
+	Type *Schema
 }
