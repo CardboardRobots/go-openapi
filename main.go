@@ -6,7 +6,8 @@ import (
 	"flag"
 	"log"
 
-	"github.com/cardboardrobots/go-openapi/core"
+	"github.com/cardboardrobots/go-openapi/parser"
+	"github.com/cardboardrobots/go-openapi/writer"
 )
 
 //go:embed templates/*
@@ -19,17 +20,18 @@ func main() {
 	log.Println("Starting...")
 
 	ctx := context.Background()
-	core.ParseDocument(ctx, content, options)
+	data := parser.ParseDocument(ctx, options)
+	writer.WriteTemplate(content, options.Output, data)
 }
 
-func getOptions() core.ParseOptions {
+func getOptions() parser.ParseOptions {
 	Input := flag.String("i", "openapi.yml", "Input location")
 	Output := flag.String("o", "gen.go", "Output location")
 	Package := flag.String("p", "definition", "Package name")
 
 	flag.Parse()
 
-	return core.ParseOptions{
+	return parser.ParseOptions{
 		Input:   *Input,
 		Output:  *Output,
 		Package: *Package,
