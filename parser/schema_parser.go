@@ -50,22 +50,38 @@ func (p *SchemaParser) Parse(doc *openapi3.T) {
 		p.Add(name, schemaRef)
 	}
 	for key, path := range doc.Paths {
-		p.AddEndpoint(key, path, p.schemas)
+		p.AddEndpoint(key, path)
 	}
 }
 
-func (p *SchemaParser) AddEndpoint(key string, path *openapi3.PathItem, s map[string]*entity.Schema) {
-	// fmt.Printf("path: %v\n", key)
-	// printOperation("Connect", path.Connect)
-	// printOperation("Delete", path.Delete)
-	endpoint := p.GetEndpoint(key, path.Get)
-	p.endpoints = append(p.endpoints, &endpoint)
-	// printOperation("Head", path.Head)
-	// printOperation("Options", path.Options)
-	// printOperation("Patch", path.Patch)
-	// printOperation("Post", path.Post)
-	// printOperation("Put", path.Put)
-	// printOperation("Trace", path.Trace)
+func (p *SchemaParser) AddEndpoint(key string, path *openapi3.PathItem) {
+	if path.Connect != nil {
+		p.CreateEndpoint(key, entity.VERB_CONNECT, path.Connect)
+	}
+	if path.Delete != nil {
+		p.CreateEndpoint(key, entity.VERB_DELETE, path.Delete)
+	}
+	if path.Get != nil {
+		p.CreateEndpoint(key, entity.VERB_GET, path.Get)
+	}
+	if path.Head != nil {
+		p.CreateEndpoint(key, entity.VERB_HEAD, path.Head)
+	}
+	if path.Options != nil {
+		p.CreateEndpoint(key, entity.VERB_OPTIONS, path.Options)
+	}
+	if path.Patch != nil {
+		p.CreateEndpoint(key, entity.VERB_PATCH, path.Patch)
+	}
+	if path.Post != nil {
+		p.CreateEndpoint(key, entity.VERB_POST, path.Post)
+	}
+	if path.Put != nil {
+		p.CreateEndpoint(key, entity.VERB_PUT, path.Put)
+	}
+	if path.Trace != nil {
+		p.CreateEndpoint(key, entity.VERB_TRACE, path.Trace)
+	}
 }
 
 func (p *SchemaParser) Add(name string, schemaRef *openapi3.SchemaRef) *entity.Schema {
@@ -88,8 +104,9 @@ func (p *SchemaParser) Add(name string, schemaRef *openapi3.SchemaRef) *entity.S
 	return nil
 }
 
-func (p *SchemaParser) GetEndpoint(key string, operation *openapi3.Operation) entity.Endpoint {
-	return entity.Endpoint{
+func (p *SchemaParser) CreateEndpoint(key string, verb entity.Verb, operation *openapi3.Operation) *entity.Endpoint {
+	endpoint := &entity.Endpoint{
+		Verb:     verb,
 		Name:     GetPropertyName(operation.OperationID),
 		Path:     KeyToPath(key),
 		Params:   GetParams(operation),
@@ -97,6 +114,8 @@ func (p *SchemaParser) GetEndpoint(key string, operation *openapi3.Operation) en
 		Body:     GetBody(operation),
 		Response: GetResponses(operation, p.schemas),
 	}
+	p.endpoints = append(p.endpoints, endpoint)
+	return endpoint
 }
 
 func KeyToPath(key string) string {

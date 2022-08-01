@@ -3,6 +3,7 @@ package entity
 type Endpoint struct {
 	Name     string
 	Path     string
+	Verb     Verb
 	Params   []ParamProperty
 	Query    map[string]QueryProperty
 	Body     map[string]BodyProperty
