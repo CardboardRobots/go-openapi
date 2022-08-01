@@ -2,7 +2,6 @@ package parser
 
 import (
 	"context"
-	"log"
 
 	"github.com/cardboardrobots/go-openapi/entity"
 	"github.com/getkin/kin-openapi/openapi3"
@@ -14,28 +13,24 @@ type ParseOptions struct {
 	Package string
 }
 
-func ParseDocument(ctx context.Context, options ParseOptions) entity.TemplateData {
+func ParseDocument(ctx context.Context, options ParseOptions) (*entity.TemplateData, error) {
 	loader := openapi3.Loader{Context: ctx}
-
-	log.Printf("Loading %v...\n", options.Input)
 	doc, err := loader.LoadFromFile(options.Input)
 	if err != nil {
-		log.Fatalf("error: %v\n", err)
+		return nil, err
 	}
 
 	err = doc.Validate(ctx)
 	if err != nil {
-		log.Fatalf("error: %v\n", err)
+		return nil, err
 	}
 
 	schemaParser := NewSchemaParser()
 	schemaParser.Parse(doc)
 
-	log.Println("generating output...")
-
-	return entity.TemplateData{
+	return &entity.TemplateData{
 		Package:   options.Package,
 		Structs:   schemaParser.GetSchemas(),
 		Endpoints: schemaParser.GetEndpoints(),
-	}
+	}, nil
 }

@@ -1,43 +1,58 @@
 package writer
 
 import (
-	"bufio"
 	"bytes"
 	"go/format"
 	"html/template"
 	"io/fs"
-	"log"
 	"os"
 
 	"github.com/cardboardrobots/go-openapi/entity"
 )
 
-func WriteTemplate(fsys fs.FS, output string, data entity.TemplateData) {
+func Write(fsys fs.FS, output string, data entity.TemplateData) error {
+	rendered, err := RenderTemplate(fsys, output, data)
+	if err != nil {
+		return err
+	}
+
+	formatted, err := Format(rendered)
+	if err != nil {
+		// Write the unformatted output
+		WriteToFile(output, rendered)
+		return err
+	}
+
+	return WriteToFile(output, formatted)
+}
+
+func RenderTemplate(fsys fs.FS, output string, data entity.TemplateData) ([]byte, error) {
 	t, err := template.ParseFS(fsys, "templates/*.tmpl")
 	if err != nil {
-		log.Fatalf("error: %v\n", err)
+		return nil, err
 	}
+
 	buffer := bytes.NewBufferString("")
 	err = t.ExecuteTemplate(buffer, "main.tmpl", data)
 	if err != nil {
-		log.Fatalf("%v", err)
-		return
+		return nil, err
 	}
 
-	bytes, err := format.Source(buffer.Bytes())
-	if err != nil {
-		log.Print(buffer)
-		log.Fatalf("%v", err)
-		return
-	}
+	return buffer.Bytes(), nil
+}
 
-	f, err := os.Create(output)
+func Format(source []byte) ([]byte, error) {
+	bytes, err := format.Source(source)
+	return bytes, err
+}
+
+func WriteToFile(path string, data []byte) error {
+	f, err := os.Create(path)
 	if err != nil {
-		return
+		return err
 	}
 	defer f.Close()
 
-	writer := bufio.NewWriter(f)
-	writer.Write(bytes)
-	writer.Flush()
+	_, err = f.Write(data)
+	return err
 }

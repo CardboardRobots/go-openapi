@@ -20,8 +20,18 @@ func main() {
 	log.Println("Starting...")
 
 	ctx := context.Background()
-	data := parser.ParseDocument(ctx, options)
-	writer.WriteTemplate(content, options.Output, data)
+
+	log.Printf("Loading %v...\n", options.Input)
+	data, err := parser.ParseDocument(ctx, options)
+	if err != nil {
+		log.Fatalf("error: %v\n", err)
+	}
+
+	log.Println("generating output...")
+	err = writer.Write(content, options.Output, *data)
+	if err != nil {
+		log.Fatalf("error: %v: %v", options.Output, err)
+	}
 }
 
 func getOptions() parser.ParseOptions {
