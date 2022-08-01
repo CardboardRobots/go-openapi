@@ -5,12 +5,8 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-type ResponseOption struct {
-	Type string
-}
-
-func GetResponses(operation *openapi3.Operation, s map[string]*entity.Schema) map[string]ResponseOption {
-	responseOptions := make(map[string]ResponseOption)
+func GetResponses(operation *openapi3.Operation, s map[string]*entity.Schema) map[string]entity.ResponseOption {
+	responseOptions := make(map[string]entity.ResponseOption)
 
 	for code, ref := range operation.Responses {
 		response := ref.Value
@@ -20,8 +16,8 @@ func GetResponses(operation *openapi3.Operation, s map[string]*entity.Schema) ma
 				schema, ok := s[name]
 				if ok {
 					name := GetResponseName(code, key)
-					responseOptions[name] = ResponseOption{
-						Type: schema.Name,
+					responseOptions[name] = entity.ResponseOption{
+						Name: schema.Name,
 					}
 				}
 			}

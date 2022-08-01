@@ -1,6 +1,6 @@
-func Use{{ .OperationId }}(router *gin.Engine, service {{ .OperationId }}Service) {
+func Use{{ .Name }}(router *gin.Engine, service {{ .Name }}Service) {
     router.GET("{{ .Path }}", func(ctx *gin.Context) {
-        params:= {{ .OperationId }}Params{
+        params:= {{ .Name }}Params{
             {{ range .Parameters }}
                 {{ if eq .Type "int" }}
                     {{ .Name }}: GetInteger(ctx, "{{ .Key }}"),
@@ -10,13 +10,13 @@ func Use{{ .OperationId }}(router *gin.Engine, service {{ .OperationId }}Service
             {{ end }}
         }
 
-        var query {{ .OperationId }}Query
+        var query {{ .Name }}Query
         errQuery := ctx.ShouldBindQuery(&query)
 
-        var body {{ .OperationId }}Body
+        var body {{ .Name }}Body
         errBody := ctx.ShouldBind(&body)
 
-        request := {{ .OperationId }}Request{
+        request := {{ .Name }}Request{
             params,
             query,
             body,
@@ -27,7 +27,7 @@ func Use{{ .OperationId }}(router *gin.Engine, service {{ .OperationId }}Service
             err = errBody
         }
 
-        response := service.{{ .OperationId }}(ctx.Request.Context(), request, err)
+        response := service.{{ .Name }}(ctx.Request.Context(), request, err)
         {{ range $key, $value := .Responses }}
         if response.{{ $value.Type }} != nil {
             ctx.IndentedJSON(http.StatusOK, response.{{ $value.Type }})

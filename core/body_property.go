@@ -1,13 +1,11 @@
 package core
 
-import "github.com/getkin/kin-openapi/openapi3"
+import (
+	"github.com/cardboardrobots/go-openapi/entity"
+	"github.com/getkin/kin-openapi/openapi3"
+)
 
-type BodyProperty struct {
-	Type     string
-	Property string
-}
-
-func GetBody(operation *openapi3.Operation) map[string]BodyProperty {
-	body := make(map[string]BodyProperty)
+func GetBody(operation *openapi3.Operation) map[string]entity.BodyProperty {
+	body := make(map[string]entity.BodyProperty)
 	return body
 }

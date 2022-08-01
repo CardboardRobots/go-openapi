@@ -1,19 +1,21 @@
 package core
 
 import (
+	"strings"
+
 	"github.com/cardboardrobots/go-openapi/entity"
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
 type SchemaParser struct {
 	schemas   map[string]*entity.Schema
-	endpoints []*Endpoint
+	endpoints []*entity.Endpoint
 }
 
 func NewSchemaParser() SchemaParser {
 	return SchemaParser{
 		schemas:   make(map[string]*entity.Schema),
-		endpoints: make([]*Endpoint, 0),
+		endpoints: make([]*entity.Endpoint, 0),
 	}
 }
 
@@ -39,7 +41,7 @@ func (p *SchemaParser) GetSchemas() []*entity.Schema {
 	return schemas
 }
 
-func (p *SchemaParser) GetEndpoints() []*Endpoint {
+func (p *SchemaParser) GetEndpoints() []*entity.Endpoint {
 	return p.endpoints
 }
 
@@ -86,14 +88,19 @@ func (p *SchemaParser) Add(name string, schemaRef *openapi3.SchemaRef) *entity.S
 	return nil
 }
 
-func (p *SchemaParser) GetEndpoint(key string, operation *openapi3.Operation) Endpoint {
-	return Endpoint{
-		OperationId: GetPropertyName(operation.OperationID),
-		Path:        KeyToPath(key),
-		Operation:   operation,
-		Parameters:  GetParams(operation),
-		Query:       GetQuery(operation),
-		Body:        GetBody(operation),
-		Responses:   GetResponses(operation, p.schemas),
+func (p *SchemaParser) GetEndpoint(key string, operation *openapi3.Operation) entity.Endpoint {
+	return entity.Endpoint{
+		Name:     GetPropertyName(operation.OperationID),
+		Path:     KeyToPath(key),
+		Params:   GetParams(operation),
+		Query:    GetQuery(operation),
+		Body:     GetBody(operation),
+		Response: GetResponses(operation, p.schemas),
 	}
+}
+
+func KeyToPath(key string) string {
+	key = strings.Replace(key, "}", "", -1)
+	key = strings.Replace(key, "{", ":", -1)
+	return key
 }

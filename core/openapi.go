@@ -33,21 +33,22 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 		log.Fatalf("error: %v\n", err)
 	}
 
+	schemaParser := NewSchemaParser()
+	schemaParser.Parse(doc)
+
+	log.Println("generating output...")
+	WriteTemplate(fsys, options.Output, TemplateData{
+		Package:   options.Package,
+		Structs:   schemaParser.GetSchemas(),
+		Endpoints: schemaParser.GetEndpoints(),
+	})
+}
+
+func WriteTemplate(fsys fs.FS, output string, data TemplateData) {
 	t, err := template.ParseFS(fsys, "templates/*.tmpl")
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 	}
-
-	schemaParser := NewSchemaParser()
-	schemaParser.Parse(doc)
-
-	data := TemplateData{
-		Package:   options.Package,
-		Structs:   schemaParser.GetSchemas(),
-		Endpoints: schemaParser.GetEndpoints(),
-	}
-
-	log.Println("generating output...")
 	buffer := bytes.NewBufferString("")
 	err = t.ExecuteTemplate(buffer, "main.tmpl", data)
 	if err != nil {
@@ -62,7 +63,7 @@ func ParseDocument(ctx context.Context, fsys fs.FS, options ParseOptions) {
 		return
 	}
 
-	f, err := os.Create(options.Output)
+	f, err := os.Create(output)
 	if err != nil {
 		return
 	}

@@ -4,9 +4,9 @@ type Endpoint struct {
 	Name     string
 	Path     string
 	Params   []ParamProperty
-	Query    []QueryProperty
-	Body     []BodyProperty
-	Response []ResponseOption
+	Query    map[string]QueryProperty
+	Body     map[string]BodyProperty
+	Response map[string]ResponseOption
 }
 
 type ParamProperty struct {

@@ -1,35 +1,35 @@
-type {{ .OperationId }}Params struct {
+type {{ .Name }}Params struct {
     {{ range .Parameters }}
         {{ .Name }} {{ .Type }}
     {{ end }}
 }
 
-type {{ .OperationId }}Query struct {
+type {{ .Name }}Query struct {
 {{ range $key, $value := .Query }}
     {{ $key }} {{ $value.Type }} `form:"{{ $value.Property }}"`{{ end }}
 }
 
-type {{ .OperationId }}Body struct {
+type {{ .Name }}Body struct {
 {{ range $key, $value := .Body }}
     {{ $key }} {{ $value.Type }} `form:"{{ $value.Property }}"`{{ end }}
 }
 
-type {{ .OperationId }}Request struct {
-    {{ .OperationId }}Params
-    {{ .OperationId }}Query
-    {{ .OperationId }}Body
+type {{ .Name }}Request struct {
+    {{ .Name }}Params
+    {{ .Name }}Query
+    {{ .Name }}Body
 }
 
-type {{ .OperationId }}Response struct {
+type {{ .Name }}Response struct {
 {{ range $key, $value := .Responses }}
     *{{ $value.Type }}{{ end }}
 }
 
-type {{ .OperationId }}Service interface {
-    {{ .OperationId }}(
+type {{ .Name }}Service interface {
+    {{ .Name }}(
         ctx context.Context,
-        request {{ .OperationId }}Request,
+        request {{ .Name }}Request,
         err error,
-    ) {{ .OperationId }}Response
+    ) {{ .Name }}Response
 }
 
