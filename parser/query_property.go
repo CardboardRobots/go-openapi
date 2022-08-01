@@ -16,13 +16,12 @@ func GetQuery(operation *openapi3.Operation) map[string]entity.QueryProperty {
 	})
 	array.ForEach(parameters, func(parameter *openapi3.Parameter) {
 		if parameter.Schema != nil && parameter.Schema.Value != nil {
-			// schema := parameter.Schema.Value
+			schema := parameter.Schema.Value
 			query[GetPropertyName(parameter.Name)] = entity.QueryProperty{
-				// Type: GetPropertyType(schema.Type),
+				Type: GetPropertyType(schema.Type),
 				Name: parameter.Name,
 				Key:  "",
 			}
-
 		}
 	})
 	return query

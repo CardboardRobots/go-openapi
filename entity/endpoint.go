@@ -18,7 +18,7 @@ type ParamProperty struct {
 type QueryProperty struct {
 	Name string
 	Key  string
-	Type *Schema
+	Type string
 }
 
 type BodyProperty struct {

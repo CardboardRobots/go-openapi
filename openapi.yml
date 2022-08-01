@@ -23,7 +23,7 @@ paths:
             type: integer
             format: int32
       responses:
-        '200':
+        200:
           description: A paged array of Users
           headers:
             x-next:
@@ -46,7 +46,7 @@ paths:
       tags:
         - pets
       responses:
-        '201':
+        201:
           description: Null response
         default:
           description: unexpected error

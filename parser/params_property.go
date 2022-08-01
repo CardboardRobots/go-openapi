@@ -12,8 +12,8 @@ func GetParams(operation *openapi3.Operation) []entity.ParamProperty {
 		if parameter.In == openapi3.ParameterInPath {
 			parameters = append(parameters, entity.ParamProperty{
 				Name: GetPropertyName(parameter.Name),
-				// Type: GetPropertyType(parameter.Schema.Value.Type),
-				Key: parameter.Name,
+				Type: GetPropertyType(parameter.Schema.Value.Type),
+				Key:  parameter.Name,
 			})
 		}
 	}
