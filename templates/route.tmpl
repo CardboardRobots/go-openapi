@@ -1,7 +1,7 @@
 func Use{{ .Name }}(router *gin.Engine, service {{ .Name }}Service) {
     router.GET("{{ .Path }}", func(ctx *gin.Context) {
         params:= {{ .Name }}Params{
-            {{ range .Parameters }}
+            {{ range .Params }}
                 {{ if eq .Type "int" }}
                     {{ .Name }}: GetInteger(ctx, "{{ .Key }}"),
                 {{ else }}
@@ -28,9 +28,9 @@ func Use{{ .Name }}(router *gin.Engine, service {{ .Name }}Service) {
         }
 
         response := service.{{ .Name }}(ctx.Request.Context(), request, err)
-        {{ range $key, $value := .Responses }}
-        if response.{{ $value.Type }} != nil {
-            ctx.IndentedJSON(http.StatusOK, response.{{ $value.Type }})
+        {{ range $key, $value := .Response }}
+        if response.{{ $value.Type.Name }} != nil {
+            ctx.IndentedJSON({{ .Code }}, response.{{ $value.Type.Name }})
             return
         }{{ end }}
         ctx.IndentedJSON(http.StatusInternalServerError, nil)

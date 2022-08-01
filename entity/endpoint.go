@@ -12,7 +12,7 @@ type Endpoint struct {
 type ParamProperty struct {
 	Name string
 	Key  string
-	Type *Schema
+	Type string
 }
 
 type QueryProperty struct {

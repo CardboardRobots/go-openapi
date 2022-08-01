@@ -1,17 +1,17 @@
 type {{ .Name }}Params struct {
-    {{ range .Parameters }}
+    {{ range .Params }}
         {{ .Name }} {{ .Type }}
     {{ end }}
 }
 
 type {{ .Name }}Query struct {
 {{ range $key, $value := .Query }}
-    {{ $key }} {{ $value.Type }} `form:"{{ $value.Property }}"`{{ end }}
+    {{ $key }} {{ $value.Type }} `form:"{{ $value.Name }}"`{{ end }}
 }
 
 type {{ .Name }}Body struct {
 {{ range $key, $value := .Body }}
-    {{ $key }} {{ $value.Type }} `form:"{{ $value.Property }}"`{{ end }}
+    {{ $key }} {{ $value.Type }} `form:"{{ $value.Name }}"`{{ end }}
 }
 
 type {{ .Name }}Request struct {
@@ -21,8 +21,8 @@ type {{ .Name }}Request struct {
 }
 
 type {{ .Name }}Response struct {
-{{ range $key, $value := .Responses }}
-    *{{ $value.Type }}{{ end }}
+{{ range $key, $value := .Response }}
+    *{{ $value.Type.Name }}{{ end }}
 }
 
 type {{ .Name }}Service interface {

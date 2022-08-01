@@ -68,7 +68,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: Expected response to a valid request
           content:
             application/json:
