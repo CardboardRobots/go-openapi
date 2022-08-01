@@ -6,7 +6,7 @@ type Endpoint struct {
 	Verb     Verb
 	Params   []ParamProperty
 	Query    map[string]QueryProperty
-	Body     map[string]BodyProperty
+	Body     BodyProperty
 	Response map[string]ResponseOption
 }
 
@@ -23,10 +23,16 @@ type QueryProperty struct {
 }
 
 type BodyProperty struct {
-	Name string
-	Key  string
-	Type *Schema
+	Schema   *Schema
+	Encoding Encoding
 }
+
+type Encoding string
+
+const ENCODING_JSON Encoding = "json"
+const ENCODING_XML Encoding = "xml"
+const ENCODING_URL Encoding = "form"
+const ENCODING_TEXT Encoding = "json"
 
 type ResponseOption struct {
 	Code int

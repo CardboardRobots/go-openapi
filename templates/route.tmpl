@@ -1,5 +1,5 @@
 func Use{{ .Name }}(router *gin.Engine, service {{ .Name }}Service) {
-    router.GET("{{ .Path }}", func(ctx *gin.Context) {
+    router.{{ .Verb }}("{{ .Path }}", func(ctx *gin.Context) {
         params:= {{ .Name }}Params{
             {{ range .Params }}
                 {{ if eq .Type "int" }}

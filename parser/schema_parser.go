@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/cardboardrobots/go-openapi/entity"
@@ -19,16 +20,33 @@ func NewSchemaParser() SchemaParser {
 	}
 }
 
-func (p *SchemaParser) GetById(id string) *entity.Schema {
-	schema, ok := p.schemas[id]
+func (p *SchemaParser) GetByName(name string) *entity.Schema {
+	schema, ok := p.schemas[name]
 	if !ok {
 		return nil
 	}
 	return schema
 }
 
-func (p *SchemaParser) SetById(id string, schema *entity.Schema) {
-	p.schemas[id] = schema
+func (p *SchemaParser) GetByRef(ref string) *entity.Schema {
+	name := GetSchemaName(ref)
+	if name == "" {
+		return nil
+	}
+	return p.GetByName(name)
+}
+
+func (p *SchemaParser) SetByName(name string, schema *entity.Schema) {
+	p.schemas[name] = schema
+}
+
+func (p *SchemaParser) SetByRef(ref string, schema *entity.Schema) error {
+	name := GetSchemaName(ref)
+	if name == "" {
+		return errors.New("unable to parse ref")
+	}
+	p.schemas[name] = schema
+	return nil
 }
 
 func (p *SchemaParser) GetSchemas() []*entity.Schema {
@@ -111,7 +129,7 @@ func (p *SchemaParser) CreateEndpoint(key string, verb entity.Verb, operation *o
 		Path:     KeyToPath(key),
 		Params:   GetParams(operation),
 		Query:    GetQuery(operation),
-		Body:     GetBody(operation),
+		Body:     p.GetBody(operation),
 		Response: GetResponses(operation, p.schemas),
 	}
 	p.endpoints = append(p.endpoints, endpoint)
