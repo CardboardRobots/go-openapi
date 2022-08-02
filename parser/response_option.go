@@ -9,7 +9,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-func GetResponses(operation *openapi3.Operation, s map[string]*entity.Schema) entity.Response {
+func (p *SchemaParser) GetResponses(operation *openapi3.Operation, s map[*openapi3.Schema]*entity.Schema) entity.Response {
 	responseOptions := make([]entity.ResponseOption, 0)
 	r := entity.Response{}
 
@@ -22,16 +22,18 @@ func GetResponses(operation *openapi3.Operation, s map[string]*entity.Schema) en
 		} else {
 			for _, mediaType := range response.Content {
 				if mediaType.Schema != nil {
-					name := GetSchemaName(mediaType.Schema.Ref)
-					schema, ok := s[name]
-					if ok {
-						responseOption := entity.ResponseOption{
-							Name: schema.Name,
-							Type: s[schema.Name],
-							Code: GetStatus(code),
-						}
-						responseOptions = append(responseOptions, responseOption)
+					schema, ok := s[mediaType.Schema.Value]
+					if !ok {
+						// Schema has not be logged
+						schema = p.Add(GetPropertyName(operation.OperationID+code), mediaType.Schema)
 					}
+
+					responseOption := entity.ResponseOption{
+						Name: schema.Name,
+						Type: schema,
+						Code: GetStatus(code),
+					}
+					responseOptions = append(responseOptions, responseOption)
 				}
 			}
 		}

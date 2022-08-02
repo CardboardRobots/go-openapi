@@ -1,3 +1,19 @@
+{{ if eq .Type "boolean" }}
+type {{ .Name }} bool
+{{ end }}
+
+{{ if eq .Type "number" }}
+type {{ .Name }} float32
+{{ end }}
+
+{{ if eq .Type "integer" }}
+type {{ .Name }} int
+{{ end }}
+
+{{ if eq .Type "string" }}
+type {{ .Name }} string
+{{ end }}
+
 {{ if eq .Type "object" }}
 type {{ .Name }} struct {
     {{ range .Fields }}

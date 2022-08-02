@@ -10,24 +10,13 @@ func (p *SchemaParser) GetBody(operation *openapi3.Operation) entity.BodyPropert
 		return entity.BodyProperty{}
 	}
 
-	// Try looking in the schemas
-	if operation.RequestBody.Ref != "" {
-		schema := p.GetByRef(operation.RequestBody.Ref)
-		if schema != nil {
-			return entity.BodyProperty{
-				Schema:   schema,
-				Encoding: entity.ENCODING_JSON,
-			}
-		}
-	}
-
 	// Try using this value directly
 	if operation.RequestBody.Value != nil {
 		requestBody := operation.RequestBody.Value
 
 		json := requestBody.Content.Get(CONTENT_JSON)
 		if json != nil {
-			schema := p.GetByRef(json.Schema.Ref)
+			schema := p.GetBySchema(json.Schema.Value)
 			if schema != nil {
 				return entity.BodyProperty{
 					Schema:   schema,
@@ -38,7 +27,7 @@ func (p *SchemaParser) GetBody(operation *openapi3.Operation) entity.BodyPropert
 
 		xml := requestBody.Content.Get(CONTENT_XML)
 		if xml != nil {
-			schema := p.GetByRef(xml.Schema.Ref)
+			schema := p.GetBySchema(xml.Schema.Value)
 			if schema != nil {
 				return entity.BodyProperty{
 					Schema:   schema,
@@ -49,7 +38,7 @@ func (p *SchemaParser) GetBody(operation *openapi3.Operation) entity.BodyPropert
 
 		url := requestBody.Content.Get(CONTENT_URL)
 		if url != nil {
-			schema := p.GetByRef(url.Schema.Ref)
+			schema := p.GetBySchema(url.Schema.Value)
 			if schema != nil {
 				return entity.BodyProperty{
 					Schema:   schema,
@@ -60,7 +49,7 @@ func (p *SchemaParser) GetBody(operation *openapi3.Operation) entity.BodyPropert
 
 		text := requestBody.Content.Get(CONTENT_TEXT)
 		if text != nil {
-			schema := p.GetByRef(text.Schema.Ref)
+			schema := p.GetBySchema(text.Schema.Value)
 			if schema != nil {
 				return entity.BodyProperty{
 					Schema:   schema,

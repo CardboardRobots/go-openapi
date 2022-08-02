@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/cardboardrobots/go-openapi/entity"
@@ -9,45 +8,57 @@ import (
 )
 
 type SchemaParser struct {
-	schemas   map[string]*entity.Schema
+	schemas   map[*openapi3.Schema]*entity.Schema
 	endpoints []*entity.Endpoint
 }
 
 func NewSchemaParser() SchemaParser {
 	return SchemaParser{
-		schemas:   make(map[string]*entity.Schema),
+		schemas:   make(map[*openapi3.Schema]*entity.Schema),
 		endpoints: make([]*entity.Endpoint, 0),
 	}
 }
 
-func (p *SchemaParser) GetByName(name string) *entity.Schema {
-	schema, ok := p.schemas[name]
+func (p *SchemaParser) GetBySchema(oapiSchema *openapi3.Schema) *entity.Schema {
+	schema, ok := p.schemas[oapiSchema]
 	if !ok {
 		return nil
 	}
 	return schema
 }
 
-func (p *SchemaParser) GetByRef(ref string) *entity.Schema {
-	name := GetSchemaName(ref)
-	if name == "" {
-		return nil
-	}
-	return p.GetByName(name)
+// func (p *SchemaParser) GetByName(name string) *entity.Schema {
+// 	schema, ok := p.schemas[name]
+// 	if !ok {
+// 		return nil
+// 	}
+// 	return schema
+// }
+
+// func (p *SchemaParser) GetByRef(ref string) *entity.Schema {
+// 	name := GetSchemaName(ref)
+// 	if name == "" {
+// 		return nil
+// 	}
+// 	return p.GetByName(name)
+// }
+
+func (p *SchemaParser) SetByName(oapiSchema *openapi3.Schema, schema *entity.Schema) {
+	p.schemas[oapiSchema] = schema
 }
 
-func (p *SchemaParser) SetByName(name string, schema *entity.Schema) {
-	p.schemas[name] = schema
-}
+// func (p *SchemaParser) SetByName(name string, schema *entity.Schema) {
+// 	p.schemas[name] = schema
+// }
 
-func (p *SchemaParser) SetByRef(ref string, schema *entity.Schema) error {
-	name := GetSchemaName(ref)
-	if name == "" {
-		return errors.New("unable to parse ref")
-	}
-	p.schemas[name] = schema
-	return nil
-}
+// func (p *SchemaParser) SetByRef(ref string, schema *entity.Schema) error {
+// 	name := GetSchemaName(ref)
+// 	if name == "" {
+// 		return errors.New("unable to parse ref")
+// 	}
+// 	p.schemas[name] = schema
+// 	return nil
+// }
 
 func (p *SchemaParser) GetSchemas() []*entity.Schema {
 	schemas := make([]*entity.Schema, len(p.schemas))
@@ -131,7 +142,7 @@ func (p *SchemaParser) CreateEndpoint(key string, verb entity.Verb, operation *o
 		Query:    GetQuery(operation),
 		Header:   GetHeader(operation),
 		Body:     p.GetBody(operation),
-		Response: GetResponses(operation, p.schemas),
+		Response: p.GetResponses(operation, p.schemas),
 	}
 	p.endpoints = append(p.endpoints, endpoint)
 	return endpoint

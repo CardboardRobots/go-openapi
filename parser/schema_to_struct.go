@@ -14,14 +14,14 @@ func (p *SchemaParser) AddBoolean(
 		name = GetSchemaName(ref)
 	}
 
-	item := p.GetByName(name)
+	item := p.GetBySchema(schema)
 	if item != nil {
 		return item
 	}
 
 	newItem := entity.NewBooleanSchema(ref, name)
 
-	p.SetByName(name, &newItem)
+	p.SetByName(schema, &newItem)
 	return &newItem
 }
 
@@ -34,14 +34,14 @@ func (p *SchemaParser) AddInteger(
 		name = GetSchemaName(ref)
 	}
 
-	item := p.GetByName(name)
+	item := p.GetBySchema(schema)
 	if item != nil {
 		return item
 	}
 
 	newItem := entity.NewIntegerSchema(ref, name)
 
-	p.SetByName(name, &newItem)
+	p.SetByName(schema, &newItem)
 	return &newItem
 }
 
@@ -54,14 +54,14 @@ func (p *SchemaParser) AddFloat(
 		name = GetSchemaName(ref)
 	}
 
-	item := p.GetByName(name)
+	item := p.GetBySchema(schema)
 	if item != nil {
 		return item
 	}
 
 	newItem := entity.NewFloatSchema(ref, name)
 
-	p.SetByName(name, &newItem)
+	p.SetByName(schema, &newItem)
 	return &newItem
 }
 
@@ -74,14 +74,14 @@ func (p *SchemaParser) AddString(
 		name = GetSchemaName(ref)
 	}
 
-	item := p.GetByName(name)
+	item := p.GetBySchema(schema)
 	if item != nil {
 		return item
 	}
 
-	newItem := entity.NewFloatSchema(ref, name)
+	newItem := entity.NewStringSchema(ref, name)
 
-	p.SetByName(name, &newItem)
+	p.SetByName(schema, &newItem)
 	return &newItem
 }
 
@@ -93,7 +93,7 @@ func (p *SchemaParser) AddObject(
 	if name == "" {
 		name = GetSchemaName(ref)
 	}
-	item := p.GetByName(name)
+	item := p.GetBySchema(schema)
 	if item != nil {
 		return item
 	}
@@ -114,7 +114,7 @@ func (p *SchemaParser) AddObject(
 
 	newItem := entity.NewObjectSchema(ref, name, fields)
 
-	p.SetByName(name, &newItem)
+	p.SetByName(schema, &newItem)
 	return &newItem
 }
 
@@ -127,7 +127,7 @@ func (p *SchemaParser) AddArray(
 		name = GetSchemaName(ref)
 	}
 
-	item := p.GetByName(name)
+	item := p.GetBySchema(schema)
 	if item != nil {
 		return item
 	}
@@ -136,6 +136,6 @@ func (p *SchemaParser) AddArray(
 
 	newItem := entity.NewArraySchema(ref, name, items)
 
-	p.SetByName(name, &newItem)
+	p.SetByName(schema, &newItem)
 	return &newItem
 }
