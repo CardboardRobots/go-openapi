@@ -10,6 +10,16 @@ func Use{{ .Name }}(router *gin.Engine, service {{ .Name }}Service) {
             {{ end }}
         }
 
+        header:= {{ .Name }}Header{
+            {{ range .Header }}
+                {{ if eq .Type "int" }}
+                    {{ .Name }}: GetIntegerHeader(ctx, "{{ .Key }}"),
+                {{ else }}
+                    {{ .Name }}: ctx.Request.Header.Get("{{ .Key }}"),
+                {{ end }}
+            {{ end }}
+        }
+
         var query {{ .Name }}Query
         errQuery := ctx.ShouldBindQuery(&query)
 
@@ -19,6 +29,7 @@ func Use{{ .Name }}(router *gin.Engine, service {{ .Name }}Service) {
         request := {{ .Name }}Request{
             params,
             query,
+            header,
             body,
         }
 

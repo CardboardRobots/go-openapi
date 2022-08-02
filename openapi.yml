@@ -8,6 +8,26 @@ info:
 servers:
   - url: https://auth.jitter.dance
 paths:
+  /token:
+    get:
+      operationId: getToken
+      parameters:
+        - name: authorization
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: #/components/schemas/TokenData
+      responses:
+        200:
+          description: 'An Access Token'
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/AccessToken
   /users:
     get:
       summary: List all Users
@@ -45,6 +65,17 @@ paths:
       operationId: createUser
       tags:
         - users
+      parameters:
+        - name: clientId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: clientSecret
+          in: header
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -87,6 +118,42 @@ paths:
                 $ref: "#/components/schemas/Error"
 components:
   schemas:
+    TokenData:
+      type: object
+      required:
+        - grant_type
+      properties:
+        client_id:
+          type: string
+        client_secret:
+          type: string
+        grant_type:
+          type: string
+        scope:
+          type: string
+        code:
+          type: string
+        refresh_token:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+        redirect_uri:
+          type: string
+    AccessToken:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: string
+        refresh_token:
+          type: string
+        example_parameter:
+          type: string
     User:
       type: object
       required:

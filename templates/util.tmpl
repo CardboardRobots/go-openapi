@@ -3,3 +3,9 @@ func GetInteger(ctx *gin.Context, name string) int {
 	result, _ := strconv.Atoi(value)
 	return result
 }
+
+func GetIntegerHeader(ctx *gin.Context, name string) int {
+	value := ctx.Request.Header.Get(name)
+	result, _ := strconv.Atoi(value)
+	return result
+}

@@ -9,6 +9,11 @@ type {{ .Name }}Query struct {
     {{ $key }} {{ $value.Type }} `form:"{{ $value.Name }}"`{{ end }}
 }
 
+type {{ .Name }}Header struct {
+{{ range $key, $value := .Header }}
+    {{ $key }} {{ $value.Type }} `form:"{{ $value.Name }}"`{{ end }}
+}
+
 {{ if .Body.Schema }}
     {{ if eq .Body.Schema.Type "object" }}
         type {{ .Name }}Body struct {
@@ -42,6 +47,7 @@ type {{ .Name }}Query struct {
 type {{ .Name }}Request struct {
     {{ .Name }}Params
     {{ .Name }}Query
+    {{ .Name }}Header
     {{ .Name }}Body
 }
 

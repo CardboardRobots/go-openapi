@@ -6,6 +6,7 @@ type Endpoint struct {
 	Verb     Verb
 	Params   []ParamProperty
 	Query    map[string]QueryProperty
+	Header   map[string]HeaderProperty
 	Body     BodyProperty
 	Response Response
 }
@@ -17,6 +18,12 @@ type ParamProperty struct {
 }
 
 type QueryProperty struct {
+	Name string
+	Key  string
+	Type string
+}
+
+type HeaderProperty struct {
 	Name string
 	Key  string
 	Type string

@@ -129,6 +129,7 @@ func (p *SchemaParser) CreateEndpoint(key string, verb entity.Verb, operation *o
 		Path:     KeyToPath(key),
 		Params:   GetParams(operation),
 		Query:    GetQuery(operation),
+		Header:   GetHeader(operation),
 		Body:     p.GetBody(operation),
 		Response: GetResponses(operation, p.schemas),
 	}
