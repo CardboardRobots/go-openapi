@@ -7,7 +7,7 @@ type Endpoint struct {
 	Params   []ParamProperty
 	Query    map[string]QueryProperty
 	Body     BodyProperty
-	Response map[string]ResponseOption
+	Response Response
 }
 
 type ParamProperty struct {
@@ -38,4 +38,10 @@ type ResponseOption struct {
 	Code int
 	Name string
 	Type *Schema
+}
+
+type Response struct {
+	Options     []ResponseOption
+	Default     bool
+	DefaultCode int
 }

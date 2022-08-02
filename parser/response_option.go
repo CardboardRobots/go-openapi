@@ -9,28 +9,36 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-func GetResponses(operation *openapi3.Operation, s map[string]*entity.Schema) map[string]entity.ResponseOption {
-	responseOptions := make(map[string]entity.ResponseOption)
+func GetResponses(operation *openapi3.Operation, s map[string]*entity.Schema) entity.Response {
+	responseOptions := make([]entity.ResponseOption, 0)
+	r := entity.Response{}
 
 	for code, ref := range operation.Responses {
 		response := ref.Value
-		for key, mediaType := range response.Content {
-			if mediaType.Schema != nil {
-				name := GetSchemaName(mediaType.Schema.Ref)
-				schema, ok := s[name]
-				if ok {
-					name := GetResponseName(code, key)
-					responseOptions[name] = entity.ResponseOption{
-						Name: schema.Name,
-						Type: s[schema.Name],
-						Code: GetStatus(code),
+		if len(response.Content) == 0 {
+			// Null response
+			r.Default = true
+			r.DefaultCode = GetStatus(code)
+		} else {
+			for _, mediaType := range response.Content {
+				if mediaType.Schema != nil {
+					name := GetSchemaName(mediaType.Schema.Ref)
+					schema, ok := s[name]
+					if ok {
+						responseOption := entity.ResponseOption{
+							Name: schema.Name,
+							Type: s[schema.Name],
+							Code: GetStatus(code),
+						}
+						responseOptions = append(responseOptions, responseOption)
 					}
 				}
 			}
 		}
 	}
 
-	return responseOptions
+	r.Options = responseOptions
+	return r
 }
 
 func GetStatus(status string) int {

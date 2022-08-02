@@ -46,8 +46,8 @@ type {{ .Name }}Request struct {
 }
 
 type {{ .Name }}Response struct {
-{{ range $key, $value := .Response }}
-    *{{ $value.Type.Name }}{{ end }}
+{{ range .Response.Options }}
+    {{ if .Type }}*{{ .Type.Name }}{{ end }}{{ end }}
 }
 
 type {{ .Name }}Service interface {
