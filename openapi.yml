@@ -8,6 +8,47 @@ info:
 servers:
   - url: https://auth.jitter.dance
 paths:
+  /authorization:
+    get:
+      operationId: authorization
+      parameters:
+        - name: client_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: code_challenge
+          in: query
+          schema:
+            type: string
+        - name: code_challenge_method
+          in: query
+          schema:
+            type: string
+        - name: redirect_uri
+          in: query
+          schema:
+            type: string
+        - name: response_type
+          required: true
+          in: query
+          schema:
+            type: string
+        - name: scope
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+      responses:
+        307:
+          description: Redirect
+          content:
+            application/json:
+              schema:
+                type: string
   /token:
     get:
       operationId: getToken
@@ -27,7 +68,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: #/components/schemas/AccessToken
+                $ref: "#/components/schemas/AccessToken"
   /users:
     get:
       summary: List all Users

@@ -3,6 +3,14 @@ package parser
 import "strings"
 
 func GetPropertyName(name string) string {
+	parts := strings.Split(name, "_")
+	for index, part := range parts {
+		parts[index] = Capitalize(part)
+	}
+	return strings.Join(parts, "")
+}
+
+func Capitalize(name string) string {
 	if len(name) < 1 {
 		return ""
 	}
