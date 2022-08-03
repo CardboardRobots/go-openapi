@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io/fs"
 	"os"
+	"path/filepath"
 
 	"github.com/cardboardrobots/go-openapi/entity"
 )
@@ -47,6 +48,12 @@ func Format(source []byte) ([]byte, error) {
 }
 
 func WriteToFile(path string, data []byte) error {
+	dir := filepath.Dir(path)
+	err := os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
 	f, err := os.Create(path)
 	if err != nil {
 		return err

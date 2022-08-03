@@ -29,38 +29,9 @@ func (p *SchemaParser) GetBySchema(oapiSchema *openapi3.Schema) *entity.Schema {
 	return schema
 }
 
-// func (p *SchemaParser) GetByName(name string) *entity.Schema {
-// 	schema, ok := p.schemas[name]
-// 	if !ok {
-// 		return nil
-// 	}
-// 	return schema
-// }
-
-// func (p *SchemaParser) GetByRef(ref string) *entity.Schema {
-// 	name := GetSchemaName(ref)
-// 	if name == "" {
-// 		return nil
-// 	}
-// 	return p.GetByName(name)
-// }
-
 func (p *SchemaParser) SetByName(oapiSchema *openapi3.Schema, schema *entity.Schema) {
 	p.schemasMap[oapiSchema] = schema
 }
-
-// func (p *SchemaParser) SetByName(name string, schema *entity.Schema) {
-// 	p.schemas[name] = schema
-// }
-
-// func (p *SchemaParser) SetByRef(ref string, schema *entity.Schema) error {
-// 	name := GetSchemaName(ref)
-// 	if name == "" {
-// 		return errors.New("unable to parse ref")
-// 	}
-// 	p.schemas[name] = schema
-// 	return nil
-// }
 
 func (p *SchemaParser) GetSchemas() []*entity.Schema {
 	return p.schemas
