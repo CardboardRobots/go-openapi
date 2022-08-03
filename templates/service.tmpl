@@ -17,22 +17,8 @@ type {{ .Name }}Header struct {
 {{ if .Body.Schema }}
     {{ if eq .Body.Schema.Type "object" }}
         type {{ .Name }}Body struct {
-            {{ if eq .Body.Encoding "json" }}
-                {{ range .Body.Schema.Fields }}
-                    {{ .Name }} {{ .Type }} `json:"{{ .Tag }}"`{{ end }}
-            {{ end }}
-            {{ if eq .Body.Encoding "xml" }}
-                {{ range .Body.Schema.Fields }}
-                    {{ .Name }} {{ .Type }} `xml:"{{ .Tag }}"`{{ end }}
-            {{ end }}
-            {{ if eq .Body.Encoding "url" }}
-                {{ range .Body.Schema.Fields }}
-                    {{ .Name }} {{ .Type }} `form:"{{ .Tag }}"`{{ end }}
-            {{ end }}
-            {{ if eq .Body.Encoding "text" }}
-                {{ range .Body.Schema.Fields }}
-                    {{ .Name }} {{ .Type }} `json:"{{ .Tag }}"`{{ end }}
-            {{ end }}
+            {{ range .Body.Schema.Fields }}
+                {{ .Name }} {{ .Type }} `json:"{{ .Tag }}" form:"{{ .Tag }}" url:"{{ .Tag }}"`{{ end }}
         }
     {{ end }}
 

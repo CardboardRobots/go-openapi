@@ -17,7 +17,7 @@ type {{ .Name }} string
 {{ if eq .Type "object" }}
 type {{ .Name }} struct {
     {{ range .Fields }}
-        {{ .Name }} {{ .Type }} `json:"{{ .Tag }}"`{{ end }}
+        {{ .Name }} {{ .Type }} `json:"{{ .Tag }}" form:"{{ .Tag }}" url:"{{ .Tag }}"`{{ end }}
 }
 {{ end }}
 

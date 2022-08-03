@@ -98,6 +98,10 @@ func (p *SchemaParser) Sort() {
 	for _, schema := range p.schemas {
 		schema.Sort()
 	}
+
+	sort.Slice(p.endpoints, func(i, j int) bool {
+		return p.endpoints[i].Name < p.endpoints[j].Name
+	})
 }
 
 func (p *SchemaParser) AddEndpoint(key string, path *openapi3.PathItem) {
