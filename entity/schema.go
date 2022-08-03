@@ -1,11 +1,19 @@
 package entity
 
+import "sort"
+
 type Schema struct {
 	Id     string
 	Name   string
 	Type   SchemaType
 	Fields []Field
 	Items  *Schema
+}
+
+func (s *Schema) Sort() {
+	sort.Slice(s.Fields, func(i, j int) bool {
+		return s.Fields[i].Name < s.Fields[j].Name
+	})
 }
 
 func NewBooleanSchema(

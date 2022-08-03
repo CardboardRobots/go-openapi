@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"sort"
 	"strings"
 
 	"github.com/cardboardrobots/go-openapi/entity"
@@ -8,19 +9,20 @@ import (
 )
 
 type SchemaParser struct {
-	schemas   map[*openapi3.Schema]*entity.Schema
-	endpoints []*entity.Endpoint
+	schemasMap map[*openapi3.Schema]*entity.Schema
+	schemas    []*entity.Schema
+	endpoints  []*entity.Endpoint
 }
 
 func NewSchemaParser() SchemaParser {
 	return SchemaParser{
-		schemas:   make(map[*openapi3.Schema]*entity.Schema),
-		endpoints: make([]*entity.Endpoint, 0),
+		schemasMap: make(map[*openapi3.Schema]*entity.Schema),
+		endpoints:  make([]*entity.Endpoint, 0),
 	}
 }
 
 func (p *SchemaParser) GetBySchema(oapiSchema *openapi3.Schema) *entity.Schema {
-	schema, ok := p.schemas[oapiSchema]
+	schema, ok := p.schemasMap[oapiSchema]
 	if !ok {
 		return nil
 	}
@@ -44,7 +46,7 @@ func (p *SchemaParser) GetBySchema(oapiSchema *openapi3.Schema) *entity.Schema {
 // }
 
 func (p *SchemaParser) SetByName(oapiSchema *openapi3.Schema, schema *entity.Schema) {
-	p.schemas[oapiSchema] = schema
+	p.schemasMap[oapiSchema] = schema
 }
 
 // func (p *SchemaParser) SetByName(name string, schema *entity.Schema) {
@@ -61,13 +63,7 @@ func (p *SchemaParser) SetByName(oapiSchema *openapi3.Schema, schema *entity.Sch
 // }
 
 func (p *SchemaParser) GetSchemas() []*entity.Schema {
-	schemas := make([]*entity.Schema, len(p.schemas))
-	index := 0
-	for _, schema := range p.schemas {
-		schemas[index] = schema
-		index++
-	}
-	return schemas
+	return p.schemas
 }
 
 func (p *SchemaParser) GetEndpoints() []*entity.Endpoint {
@@ -80,6 +76,27 @@ func (p *SchemaParser) Parse(doc *openapi3.T) {
 	}
 	for key, path := range doc.Paths {
 		p.AddEndpoint(key, path)
+	}
+	p.createSortedSchemas()
+	p.Sort()
+}
+
+func (p *SchemaParser) createSortedSchemas() {
+	p.schemas = make([]*entity.Schema, len(p.schemasMap))
+	index := 0
+	for _, schema := range p.schemasMap {
+		p.schemas[index] = schema
+		index++
+	}
+}
+
+func (p *SchemaParser) Sort() {
+	sort.Slice(p.schemas, func(i, j int) bool {
+		return p.schemas[i].Name < p.schemas[j].Name
+	})
+
+	for _, schema := range p.schemas {
+		schema.Sort()
 	}
 }
 
@@ -142,7 +159,7 @@ func (p *SchemaParser) CreateEndpoint(key string, verb entity.Verb, operation *o
 		Query:    GetQuery(operation),
 		Header:   GetHeader(operation),
 		Body:     p.GetBody(operation),
-		Response: p.GetResponses(operation, p.schemas),
+		Response: p.GetResponses(operation, p.schemasMap),
 	}
 	p.endpoints = append(p.endpoints, endpoint)
 	return endpoint
