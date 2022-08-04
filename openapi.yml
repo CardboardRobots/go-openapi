@@ -8,6 +8,21 @@ info:
 servers:
   - url: https://auth.jitter.dance
 paths:
+  /approve:
+    post:
+      operationId: approve
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApproveData"
+      responses:
+        307:
+          description: Redirect
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Redirect"
   /authorization:
     get:
       operationId: authorization
@@ -159,6 +174,26 @@ paths:
                 $ref: "#/components/schemas/Error"
 components:
   schemas:
+    Redirect:
+      type: string
+    ApproveData:
+      type: object
+      required:
+        - requestId
+        - approve
+        - email
+        - password
+      properties:
+        requestId:
+          type: string
+        approve:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        scopes:
+          type: string
     TokenData:
       type: object
       required:

@@ -27,13 +27,16 @@ func (p *SchemaParser) GetResponses(operation *openapi3.Operation, s map[*openap
 						// Schema has not be logged
 						schema = p.Add(GetPropertyName(operation.OperationID+code), mediaType.Schema)
 					}
-
-					responseOption := entity.ResponseOption{
-						Name: schema.Name,
-						Type: schema,
-						Code: GetStatus(code),
+					if schema == nil {
+						// TODO: Handle this error
+					} else {
+						responseOption := entity.ResponseOption{
+							Name: schema.Name,
+							Type: schema,
+							Code: GetStatus(code),
+						}
+						responseOptions = append(responseOptions, responseOption)
 					}
-					responseOptions = append(responseOptions, responseOption)
 				}
 			}
 		}
