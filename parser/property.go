@@ -21,6 +21,8 @@ func capitalize(name string) string {
 
 func GetPropertyType(name string) string {
 	switch name {
+	case "boolean":
+		return "bool"
 	case "number":
 		return "float32"
 	case "integer":
