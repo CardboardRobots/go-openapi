@@ -1,15 +1,15 @@
 package entity
 
 type Field struct {
+	*Schema
 	Name string
-	Type string
 	Tag  string
 }
 
-func NewField(name string, Type string, tag string) Field {
+func NewField(name string, schema *Schema, tag string) Field {
 	return Field{
-		Name: name,
-		Type: Type,
-		Tag:  tag,
+		Name:   name,
+		Schema: schema,
+		Tag:    tag,
 	}
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-func GetQuery(operation *openapi3.Operation) map[string]entity.QueryProperty {
+func (p *SchemaParser) GetQuery(operation *openapi3.Operation) map[string]entity.QueryProperty {
 	query := make(map[string]entity.QueryProperty)
 	parameters := array.Map(operation.Parameters, func(ref *openapi3.ParameterRef) *openapi3.Parameter {
 		return ref.Value
@@ -16,9 +16,10 @@ func GetQuery(operation *openapi3.Operation) map[string]entity.QueryProperty {
 	})
 	array.ForEach(parameters, func(parameter *openapi3.Parameter) {
 		if parameter.Schema != nil && parameter.Schema.Value != nil {
-			schema := parameter.Schema.Value
-			query[GetPropertyName(parameter.Name)] = entity.QueryProperty{
-				Type: GetPropertyType(schema.Type),
+			name := GetPropertyName(parameter.Name)
+			schema := p.Add(name, parameter.Schema)
+			query[name] = entity.QueryProperty{
+				Type: schema,
 				Name: parameter.Name,
 				Key:  "",
 			}

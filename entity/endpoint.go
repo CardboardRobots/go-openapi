@@ -20,7 +20,7 @@ type ParamProperty struct {
 type QueryProperty struct {
 	Name string
 	Key  string
-	Type string
+	Type *Schema
 }
 
 type HeaderProperty struct {

@@ -5,12 +5,12 @@ import "strings"
 func GetPropertyName(name string) string {
 	parts := strings.Split(name, "_")
 	for index, part := range parts {
-		parts[index] = Capitalize(part)
+		parts[index] = capitalize(part)
 	}
 	return strings.Join(parts, "")
 }
 
-func Capitalize(name string) string {
+func capitalize(name string) string {
 	if len(name) < 1 {
 		return ""
 	}

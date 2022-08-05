@@ -101,13 +101,14 @@ func (p *SchemaParser) AddObject(
 	fields := make([]entity.Field, len(schema.Properties))
 	index := 0
 	for key, schemaRef := range schema.Properties {
-		schema := schemaRef.Value
 		// name := schemaRef.Ref
 		// if name is empty, this is not a true ref
+		name := GetPropertyName(key)
+		schema := p.Add(key, schemaRef)
 		fields[index] = entity.Field{
-			Name: GetPropertyName(key),
-			Tag:  key,
-			Type: GetPropertyType(schema.Type),
+			Schema: schema,
+			Name:   name,
+			Tag:    key,
 		}
 		index++
 	}
