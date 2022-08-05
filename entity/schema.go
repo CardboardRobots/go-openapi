@@ -17,6 +17,12 @@ func (s *Schema) Sort() {
 	})
 }
 
+func (s *Schema) Show(display bool) {
+	if display {
+		s.Display = true
+	}
+}
+
 func NewBooleanSchema(
 	id string,
 	name string,

@@ -17,6 +17,7 @@ func (p *SchemaParser) AddBoolean(
 
 	item := p.GetBySchema(schema)
 	if item != nil {
+		item.Show(display)
 		return item
 	}
 
@@ -38,6 +39,7 @@ func (p *SchemaParser) AddInteger(
 
 	item := p.GetBySchema(schema)
 	if item != nil {
+		item.Show(display)
 		return item
 	}
 
@@ -59,6 +61,7 @@ func (p *SchemaParser) AddFloat(
 
 	item := p.GetBySchema(schema)
 	if item != nil {
+		item.Show(display)
 		return item
 	}
 
@@ -80,6 +83,7 @@ func (p *SchemaParser) AddString(
 
 	item := p.GetBySchema(schema)
 	if item != nil {
+		item.Show(display)
 		return item
 	}
 
@@ -100,6 +104,7 @@ func (p *SchemaParser) AddObject(
 	}
 	item := p.GetBySchema(schema)
 	if item != nil {
+		item.Show(display)
 		return item
 	}
 
@@ -136,6 +141,7 @@ func (p *SchemaParser) AddArray(
 
 	item := p.GetBySchema(schema)
 	if item != nil {
+		item.Show(display)
 		return item
 	}
 

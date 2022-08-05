@@ -63,7 +63,7 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                $ref: "#/components/schemas/Redirect"
   /token:
     get:
       operationId: getToken
@@ -76,7 +76,7 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              $ref: #/components/schemas/TokenData
+              $ref: "#/components/schemas/TokenData"
       responses:
         200:
           description: 'An Access Token'

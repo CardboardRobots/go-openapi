@@ -36,7 +36,6 @@ type {{ .Name }}Service interface {
     {{ .Name }}(
         ctx context.Context,
         request {{ .Name }}Request,
-        err error,
-    ) {{ .Name }}Response
+    ) ({{ .Name }}Response, error)
 }
 
