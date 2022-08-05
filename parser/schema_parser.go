@@ -128,7 +128,7 @@ func (p *SchemaParser) Add(name string, schemaRef *openapi3.SchemaRef, display b
 func (p *SchemaParser) CreateEndpoint(key string, verb entity.Verb, operation *openapi3.Operation) *entity.Endpoint {
 	endpoint := &entity.Endpoint{
 		Verb:     verb,
-		Name:     GetEndpointName(operation.OperationID, key),
+		Name:     GetEndpointName(verb, operation.OperationID, key),
 		Path:     KeyToPath(key),
 		Params:   GetParams(operation),
 		Query:    p.GetQuery(operation),
@@ -140,21 +140,22 @@ func (p *SchemaParser) CreateEndpoint(key string, verb entity.Verb, operation *o
 	return endpoint
 }
 
-func GetEndpointName(operationId string, key string) string {
+func GetEndpointName(verb entity.Verb, operationId string, key string) string {
 	if operationId != "" {
 		return GetPropertyName(operationId)
 	}
-	return KeyToName(key)
+	return KeyToName(verb, key)
 }
 
-func KeyToName(key string) string {
-	key = strings.Replace(key, "}", "", -1)
-	key = strings.Replace(key, "{", "By", -1)
+func KeyToName(verb entity.Verb, key string) string {
+	key = strings.Replace(key, "}", "/", -1)
+	key = strings.Replace(key, "{", "By/", -1)
 	parts := strings.Split(key, "/")
 	for index, part := range parts {
 		parts[index] = capitalize(part)
 	}
-	return strings.Join(parts, "")
+	prefix := capitalize(strings.ToLower(string(verb)))
+	return prefix + strings.Join(parts, "")
 }
 
 func KeyToPath(key string) string {
