@@ -43,7 +43,7 @@ func (p *SchemaParser) GetEndpoints() []*entity.Endpoint {
 
 func (p *SchemaParser) Parse(doc *openapi3.T) {
 	for name, schemaRef := range doc.Components.Schemas {
-		p.Add(name, schemaRef)
+		p.Add(name, schemaRef, true)
 	}
 	for key, path := range doc.Paths {
 		p.AddEndpoint(key, path)
@@ -105,22 +105,22 @@ func (p *SchemaParser) AddEndpoint(key string, path *openapi3.PathItem) {
 	}
 }
 
-func (p *SchemaParser) Add(name string, schemaRef *openapi3.SchemaRef) *entity.Schema {
+func (p *SchemaParser) Add(name string, schemaRef *openapi3.SchemaRef, display bool) *entity.Schema {
 	schema := schemaRef.Value
 	ref := schemaRef.Ref
 	switch schema.Type {
 	case "boolean":
-		return p.AddBoolean(ref, name, schema)
+		return p.AddBoolean(ref, name, schema, display)
 	case "string":
-		return p.AddString(ref, name, schema)
+		return p.AddString(ref, name, schema, display)
 	case "number":
-		return p.AddFloat(ref, name, schema)
+		return p.AddFloat(ref, name, schema, display)
 	case "integer":
-		return p.AddInteger(ref, name, schema)
+		return p.AddInteger(ref, name, schema, display)
 	case "object":
-		return p.AddObject(ref, name, schema)
+		return p.AddObject(ref, name, schema, true)
 	case "array":
-		return p.AddArray(ref, name, schema)
+		return p.AddArray(ref, name, schema, true)
 	}
 	return nil
 }

@@ -3,8 +3,8 @@ package entity
 type SchemaType string
 
 const TYPE_STRING SchemaType = "string"
-const TYPE_NUMBER SchemaType = "number"
-const TYPE_INTEGER SchemaType = "integer"
+const TYPE_NUMBER SchemaType = "float32"
+const TYPE_INTEGER SchemaType = "int"
 const TYPE_BOOLEAN SchemaType = "boolean"
 const TYPE_ARRAY SchemaType = "array"
 const TYPE_OBJECT SchemaType = "object"

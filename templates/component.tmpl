@@ -1,3 +1,4 @@
+{{ if .Display }}
 {{ if eq .Type "boolean" }}
 type {{ .Name }} bool
 {{ end }}
@@ -23,4 +24,5 @@ type {{ .Name }} struct {
 
 {{ if eq .Type "array" }}
 type {{ .Name }} []{{ .Items.Name }}
+{{ end }}
 {{ end }}

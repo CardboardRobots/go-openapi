@@ -3,11 +3,12 @@ package entity
 import "sort"
 
 type Schema struct {
-	Id     string
-	Name   string
-	Type   SchemaType
-	Fields []Field
-	Items  *Schema
+	Id      string
+	Name    string
+	Type    SchemaType
+	Fields  []Field
+	Items   *Schema
+	Display bool
 }
 
 func (s *Schema) Sort() {
@@ -19,44 +20,52 @@ func (s *Schema) Sort() {
 func NewBooleanSchema(
 	id string,
 	name string,
+	display bool,
 ) Schema {
 	return Schema{
-		Id:   id,
-		Name: name,
-		Type: TYPE_BOOLEAN,
+		Id:      id,
+		Name:    name,
+		Type:    TYPE_BOOLEAN,
+		Display: display,
 	}
 }
 
 func NewFloatSchema(
 	id string,
 	name string,
+	display bool,
 ) Schema {
 	return Schema{
-		Id:   id,
-		Name: name,
-		Type: TYPE_NUMBER,
+		Id:      id,
+		Name:    name,
+		Type:    TYPE_NUMBER,
+		Display: display,
 	}
 }
 
 func NewIntegerSchema(
 	id string,
 	name string,
+	display bool,
 ) Schema {
 	return Schema{
-		Id:   id,
-		Name: name,
-		Type: TYPE_INTEGER,
+		Id:      id,
+		Name:    name,
+		Type:    TYPE_INTEGER,
+		Display: display,
 	}
 }
 
 func NewStringSchema(
 	id string,
 	name string,
+	display bool,
 ) Schema {
 	return Schema{
-		Id:   id,
-		Name: name,
-		Type: TYPE_STRING,
+		Id:      id,
+		Name:    name,
+		Type:    TYPE_STRING,
+		Display: display,
 	}
 }
 
@@ -64,12 +73,14 @@ func NewObjectSchema(
 	id string,
 	name string,
 	fields []Field,
+	display bool,
 ) Schema {
 	return Schema{
-		Id:     id,
-		Name:   name,
-		Type:   TYPE_OBJECT,
-		Fields: fields,
+		Id:      id,
+		Name:    name,
+		Type:    TYPE_OBJECT,
+		Fields:  fields,
+		Display: display,
 	}
 }
 
@@ -77,11 +88,13 @@ func NewArraySchema(
 	id string,
 	name string,
 	items *Schema,
+	display bool,
 ) Schema {
 	return Schema{
-		Id:    id,
-		Name:  name,
-		Type:  TYPE_ARRAY,
-		Items: items,
+		Id:      id,
+		Name:    name,
+		Type:    TYPE_ARRAY,
+		Items:   items,
+		Display: display,
 	}
 }

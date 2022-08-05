@@ -11,24 +11,14 @@ type {{ .Name }}Query struct {
 
 type {{ .Name }}Header struct {
 {{ range $key, $value := .Header }}
-    {{ $key }} {{ $value.Type }} `form:"{{ $value.Name }}"`{{ end }}
+    {{ .Name }} {{ $value.Type }} `form:"{{ $value.Key }}"`{{ end }}
 }
 
+type {{ .Name }}Body struct {
 {{ if .Body.Schema }}
-    {{ if eq .Body.Schema.Type "object" }}
-        type {{ .Name }}Body struct {
-            {{ range .Body.Schema.Fields }}
-                {{ .Name }} {{ .Type }} `json:"{{ .Tag }}" form:"{{ .Tag }}" url:"{{ .Tag }}"`{{ end }}
-        }
-    {{ end }}
-
-    {{ if eq .Body.Schema.Type "array" }}
-        type {{ .Name }} []{{ .Body.Schema.Items.Name }}
-    {{ end }}
-{{ else }}
-    type {{ .Name }}Body struct {
-    }
+    {{ .Body.Schema.Name }}
 {{ end }}
+}
 
 type {{ .Name }}Request struct {
     {{ .Name }}Params

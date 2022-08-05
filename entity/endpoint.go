@@ -18,9 +18,9 @@ type ParamProperty struct {
 }
 
 type QueryProperty struct {
+	*Schema
 	Name string
 	Key  string
-	Type *Schema
 }
 
 type HeaderProperty struct {
@@ -30,7 +30,7 @@ type HeaderProperty struct {
 }
 
 type BodyProperty struct {
-	Schema   *Schema
+	*Schema
 	Encoding Encoding
 }
 

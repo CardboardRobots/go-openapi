@@ -25,7 +25,7 @@ func (p *SchemaParser) GetResponses(operation *openapi3.Operation, s map[*openap
 					schema, ok := s[mediaType.Schema.Value]
 					if !ok {
 						// Schema has not be logged
-						schema = p.Add(GetPropertyName(operation.OperationID+code), mediaType.Schema)
+						schema = p.Add(GetPropertyName(operation.OperationID+code), mediaType.Schema, true)
 					}
 					if schema == nil {
 						// TODO: Handle this error

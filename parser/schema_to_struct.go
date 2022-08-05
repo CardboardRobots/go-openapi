@@ -9,6 +9,7 @@ func (p *SchemaParser) AddBoolean(
 	ref string,
 	name string,
 	schema *openapi3.Schema,
+	display bool,
 ) *entity.Schema {
 	if name == "" {
 		name = GetSchemaName(ref)
@@ -19,7 +20,7 @@ func (p *SchemaParser) AddBoolean(
 		return item
 	}
 
-	newItem := entity.NewBooleanSchema(ref, name)
+	newItem := entity.NewBooleanSchema(ref, name, display)
 
 	p.SetByName(schema, &newItem)
 	return &newItem
@@ -29,6 +30,7 @@ func (p *SchemaParser) AddInteger(
 	ref string,
 	name string,
 	schema *openapi3.Schema,
+	display bool,
 ) *entity.Schema {
 	if name == "" {
 		name = GetSchemaName(ref)
@@ -39,7 +41,7 @@ func (p *SchemaParser) AddInteger(
 		return item
 	}
 
-	newItem := entity.NewIntegerSchema(ref, name)
+	newItem := entity.NewIntegerSchema(ref, name, display)
 
 	p.SetByName(schema, &newItem)
 	return &newItem
@@ -49,6 +51,7 @@ func (p *SchemaParser) AddFloat(
 	ref string,
 	name string,
 	schema *openapi3.Schema,
+	display bool,
 ) *entity.Schema {
 	if name == "" {
 		name = GetSchemaName(ref)
@@ -59,7 +62,7 @@ func (p *SchemaParser) AddFloat(
 		return item
 	}
 
-	newItem := entity.NewFloatSchema(ref, name)
+	newItem := entity.NewFloatSchema(ref, name, display)
 
 	p.SetByName(schema, &newItem)
 	return &newItem
@@ -69,6 +72,7 @@ func (p *SchemaParser) AddString(
 	ref string,
 	name string,
 	schema *openapi3.Schema,
+	display bool,
 ) *entity.Schema {
 	if name == "" {
 		name = GetSchemaName(ref)
@@ -79,7 +83,7 @@ func (p *SchemaParser) AddString(
 		return item
 	}
 
-	newItem := entity.NewStringSchema(ref, name)
+	newItem := entity.NewStringSchema(ref, name, display)
 
 	p.SetByName(schema, &newItem)
 	return &newItem
@@ -89,6 +93,7 @@ func (p *SchemaParser) AddObject(
 	ref string,
 	name string,
 	schema *openapi3.Schema,
+	display bool,
 ) *entity.Schema {
 	if name == "" {
 		name = GetSchemaName(ref)
@@ -104,7 +109,7 @@ func (p *SchemaParser) AddObject(
 		// name := schemaRef.Ref
 		// if name is empty, this is not a true ref
 		name := GetPropertyName(key)
-		schema := p.Add(key, schemaRef)
+		schema := p.Add(key, schemaRef, false)
 		fields[index] = entity.Field{
 			Schema: schema,
 			Name:   name,
@@ -113,7 +118,7 @@ func (p *SchemaParser) AddObject(
 		index++
 	}
 
-	newItem := entity.NewObjectSchema(ref, name, fields)
+	newItem := entity.NewObjectSchema(ref, name, fields, display)
 
 	p.SetByName(schema, &newItem)
 	return &newItem
@@ -123,6 +128,7 @@ func (p *SchemaParser) AddArray(
 	ref string,
 	name string,
 	schema *openapi3.Schema,
+	display bool,
 ) *entity.Schema {
 	if name == "" {
 		name = GetSchemaName(ref)
@@ -133,9 +139,9 @@ func (p *SchemaParser) AddArray(
 		return item
 	}
 
-	items := p.Add("", schema.Items)
+	items := p.Add("", schema.Items, false)
 
-	newItem := entity.NewArraySchema(ref, name, items)
+	newItem := entity.NewArraySchema(ref, name, items, display)
 
 	p.SetByName(schema, &newItem)
 	return &newItem
