@@ -34,7 +34,7 @@ type {{ .Name }}Response struct {
 
 type {{ .Name }}Service interface {
     {{ .Name }}(
-        ctx context.Context,
+        ctx *gin.Context,
         request {{ .Name }}Request,
     ) ({{ .Name }}Response, error)
 }
