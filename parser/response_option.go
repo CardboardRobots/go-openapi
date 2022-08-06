@@ -2,6 +2,7 @@ package parser
 
 import (
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -41,6 +42,10 @@ func (p *SchemaParser) GetResponses(operation *openapi3.Operation, s map[*openap
 			}
 		}
 	}
+
+	sort.Slice(responseOptions, func(i, j int) bool {
+		return responseOptions[i].Name < responseOptions[j].Name
+	})
 
 	r.Options = responseOptions
 	return r
