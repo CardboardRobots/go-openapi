@@ -264,6 +264,8 @@ components:
           enum:
           - admin
           - super_admin
+        pet:
+          $ref: "#/components/schemas/Pet"
     Pet:
       type: object
       required:
