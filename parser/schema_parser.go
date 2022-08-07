@@ -108,6 +108,11 @@ func (p *SchemaParser) AddEndpoint(key string, path *openapi3.PathItem) {
 func (p *SchemaParser) Add(name string, schemaRef *openapi3.SchemaRef, display bool) *entity.Schema {
 	schema := schemaRef.Value
 	ref := schemaRef.Ref
+	if name == "" {
+		name = GetSchemaName(ref)
+	}
+	name = GetPropertyName(name)
+
 	switch schema.Type {
 	case "boolean":
 		return p.AddBoolean(ref, name, schema, display)

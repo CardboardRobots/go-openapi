@@ -13,6 +13,12 @@ type {{ .Name }} int
 
 {{ if eq .Type "string" }}
 type {{ .Name }} string
+{{ if .Enum }}
+    {{ $n := .Name }}
+    {{ range .Enum.Options }}
+        const {{ .Key }} {{ $n }} = "{{ .Value }}"
+    {{ end }}
+{{ end }}
 {{ end }}
 
 {{ if eq .Type "object" }}

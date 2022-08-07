@@ -9,6 +9,7 @@ type Schema struct {
 	Fields  []Field
 	Items   *Schema
 	Display bool
+	*Enum
 }
 
 func (s *Schema) Sort() {
@@ -72,6 +73,21 @@ func NewStringSchema(
 		Name:    name,
 		Type:    TYPE_STRING,
 		Display: display,
+	}
+}
+
+func NewEnumSchema(
+	id string,
+	name string,
+	display bool,
+	options *Enum,
+) Schema {
+	return Schema{
+		Id:      id,
+		Name:    name,
+		Type:    TYPE_STRING,
+		Display: display,
+		Enum:    options,
 	}
 }
 

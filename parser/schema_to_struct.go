@@ -1,6 +1,9 @@
 package parser
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/cardboardrobots/go-openapi/entity"
 	"github.com/getkin/kin-openapi/openapi3"
 )
@@ -11,10 +14,6 @@ func (p *SchemaParser) AddBoolean(
 	schema *openapi3.Schema,
 	display bool,
 ) *entity.Schema {
-	if name == "" {
-		name = GetSchemaName(ref)
-	}
-
 	item := p.GetBySchema(schema)
 	if item != nil {
 		item.Show(display)
@@ -33,10 +32,6 @@ func (p *SchemaParser) AddInteger(
 	schema *openapi3.Schema,
 	display bool,
 ) *entity.Schema {
-	if name == "" {
-		name = GetSchemaName(ref)
-	}
-
 	item := p.GetBySchema(schema)
 	if item != nil {
 		item.Show(display)
@@ -55,10 +50,6 @@ func (p *SchemaParser) AddFloat(
 	schema *openapi3.Schema,
 	display bool,
 ) *entity.Schema {
-	if name == "" {
-		name = GetSchemaName(ref)
-	}
-
 	item := p.GetBySchema(schema)
 	if item != nil {
 		item.Show(display)
@@ -77,17 +68,34 @@ func (p *SchemaParser) AddString(
 	schema *openapi3.Schema,
 	display bool,
 ) *entity.Schema {
-	if name == "" {
-		name = GetSchemaName(ref)
-	}
-
 	item := p.GetBySchema(schema)
 	if item != nil {
 		item.Show(display)
 		return item
 	}
 
-	newItem := entity.NewStringSchema(ref, name, display)
+	var newItem entity.Schema
+	if len(schema.Enum) > 0 {
+		options := make([]entity.EnumOption, len(schema.Enum))
+		for index, value := range schema.Enum {
+			stringValue, ok := value.(string)
+			key := strings.ToUpper(fmt.Sprintf("%v_%v", name, stringValue))
+			if ok {
+				options[index] = entity.EnumOption{
+					Key:   key,
+					Value: stringValue,
+				}
+			} else {
+				// TODO: Fix this case
+				options[index] = entity.EnumOption{}
+			}
+		}
+		newItem = entity.NewEnumSchema(ref, name, true, &entity.Enum{
+			Options: options,
+		})
+	} else {
+		newItem = entity.NewStringSchema(ref, name, display)
+	}
 
 	p.SetByName(schema, &newItem)
 	return &newItem
@@ -99,9 +107,6 @@ func (p *SchemaParser) AddObject(
 	schema *openapi3.Schema,
 	display bool,
 ) *entity.Schema {
-	if name == "" {
-		name = GetSchemaName(ref)
-	}
 	item := p.GetBySchema(schema)
 	if item != nil {
 		item.Show(display)
@@ -135,10 +140,6 @@ func (p *SchemaParser) AddArray(
 	schema *openapi3.Schema,
 	display bool,
 ) *entity.Schema {
-	if name == "" {
-		name = GetSchemaName(ref)
-	}
-
 	item := p.GetBySchema(schema)
 	if item != nil {
 		item.Show(display)

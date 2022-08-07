@@ -261,6 +261,9 @@ components:
           type: string
         roles:
           type: string
+          enum:
+          - admin
+          - super_admin
     Pet:
       type: object
       required:
