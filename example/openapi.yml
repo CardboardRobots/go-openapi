@@ -266,6 +266,10 @@ components:
           - super_admin
         pet:
           $ref: "#/components/schemas/Pet"
+        pets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Pet"
     Pet:
       type: object
       required:
@@ -279,10 +283,6 @@ components:
           type: string
         tag:
           type: string
-    Pets:
-      type: array
-      items:
-        $ref: "#/components/schemas/Pet"
     Error:
       type: object
       required:

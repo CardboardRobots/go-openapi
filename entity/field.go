@@ -1,5 +1,7 @@
 package entity
 
+import "fmt"
+
 type Field struct {
 	*Schema
 	Name     string
@@ -19,7 +21,7 @@ func NewField(name string, schema *Schema, tag string) Field {
 	case TYPE_STRING:
 		typeName = "string"
 	case TYPE_ARRAY:
-		typeName = schema.Name
+		typeName = fmt.Sprintf("[]%v", schema.Items.Name)
 	case TYPE_OBJECT:
 		typeName = schema.Name
 	}

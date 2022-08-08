@@ -125,7 +125,7 @@ func (p *SchemaParser) Add(name string, schemaRef *openapi3.SchemaRef, display b
 	case "object":
 		return p.AddObject(ref, name, schema, true)
 	case "array":
-		return p.AddArray(ref, name, schema, true)
+		return p.AddArray(ref, name, schema, display)
 	}
 	return nil
 }
