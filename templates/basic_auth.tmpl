@@ -1,5 +1,5 @@
 type Authentication struct {
-	*BasicAuth
+	BasicAuth
 }
 
 type BasicAuth struct {
@@ -24,7 +24,7 @@ func DecodeAuth(header string) Authentication {
 	if strings.HasPrefix(header, "Basic ") {
 		basicAuth, err := DecodeBasicAuth(header)
 		if err == nil {
-			authentication.BasicAuth = basicAuth
+			authentication.BasicAuth = *basicAuth
 		}
 	}
 	return authentication
