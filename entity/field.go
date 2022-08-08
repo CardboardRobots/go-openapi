@@ -13,13 +13,29 @@ func NewField(name string, schema *Schema, tag string) Field {
 	typeName := ""
 	switch schema.Type {
 	case TYPE_BOOLEAN:
-		typeName = "bool"
+		if schema.Enum != nil {
+			typeName = schema.Name
+		} else {
+			typeName = string(schema.Type)
+		}
 	case TYPE_INTEGER:
-		typeName = "int"
+		if schema.Enum != nil {
+			typeName = schema.Name
+		} else {
+			typeName = string(schema.Type)
+		}
 	case TYPE_NUMBER:
-		typeName = "float32"
+		if schema.Enum != nil {
+			typeName = schema.Name
+		} else {
+			typeName = string(schema.Type)
+		}
 	case TYPE_STRING:
-		typeName = "string"
+		if schema.Enum != nil {
+			typeName = schema.Name
+		} else {
+			typeName = string(schema.Type)
+		}
 	case TYPE_ARRAY:
 		typeName = fmt.Sprintf("[]%v", schema.Items.Name)
 	case TYPE_OBJECT:

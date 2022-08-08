@@ -48,20 +48,20 @@ func (p *SchemaParser) Parse(doc *openapi3.T) {
 	for key, path := range doc.Paths {
 		p.AddEndpoint(key, path)
 	}
-	p.createSortedSchemas()
-	p.Sort()
+	p.sortSchemas()
+	p.sortEndpoints()
 }
 
-func (p *SchemaParser) createSortedSchemas() {
-	p.schemas = make([]*entity.Schema, len(p.schemasMap))
-	index := 0
+func (p *SchemaParser) sortSchemas() {
+	p.schemas = make([]*entity.Schema, 0)
+
+	// Filter schemas
 	for _, schema := range p.schemasMap {
-		p.schemas[index] = schema
-		index++
+		if schema.Display {
+			p.schemas = append(p.schemas, schema)
+		}
 	}
-}
 
-func (p *SchemaParser) Sort() {
 	sort.Slice(p.schemas, func(i, j int) bool {
 		return p.schemas[i].Name < p.schemas[j].Name
 	})
@@ -69,7 +69,9 @@ func (p *SchemaParser) Sort() {
 	for _, schema := range p.schemas {
 		schema.Sort()
 	}
+}
 
+func (p *SchemaParser) sortEndpoints() {
 	sort.Slice(p.endpoints, func(i, j int) bool {
 		return p.endpoints[i].Name < p.endpoints[j].Name
 	})

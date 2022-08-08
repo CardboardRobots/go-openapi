@@ -16,8 +16,7 @@ type {{ .Name }} string
 {{ if .Enum }}
     {{ $n := .Name }}
     {{ range .Enum.Options }}
-        const {{ .Key }} {{ $n }} = "{{ .Value }}"
-    {{ end }}
+        const {{ .Key }} {{ $n }} = "{{ .Value }}"{{ end }}
 {{ end }}
 {{ end }}
 
