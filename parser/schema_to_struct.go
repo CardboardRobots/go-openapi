@@ -119,7 +119,7 @@ func (p *SchemaParser) AddObject(
 		// name := schemaRef.Ref
 		// if name is empty, this is not a true ref
 		name := GetPropertyName(key)
-		schema := p.Add(key, schemaRef, false)
+		schema := p.add(key, schemaRef, false)
 		fields[index] = entity.NewField(
 			name,
 			schema,
@@ -146,7 +146,7 @@ func (p *SchemaParser) AddArray(
 		return item
 	}
 
-	items := p.Add("", schema.Items, false)
+	items := p.add("", schema.Items, false)
 
 	newItem := entity.NewArraySchema(ref, name, items, display)
 

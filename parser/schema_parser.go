@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 
@@ -43,13 +44,27 @@ func (p *SchemaParser) GetEndpoints() []*entity.Endpoint {
 
 func (p *SchemaParser) Parse(doc *openapi3.T) {
 	for name, schemaRef := range doc.Components.Schemas {
-		p.Add(name, schemaRef, true)
+		p.add(name, schemaRef, true)
 	}
+	security := p.addSecurity(doc)
 	for key, path := range doc.Paths {
-		p.AddEndpoint(key, path)
+		p.addEndpoint(doc, key, path, security)
 	}
 	p.sortSchemas()
 	p.sortEndpoints()
+}
+
+func (p *SchemaParser) addSecurity(doc *openapi3.T) []*openapi3.SecurityScheme {
+	security := make([]*openapi3.SecurityScheme, 0)
+	for _, securityRequirement := range doc.Security {
+		for name := range securityRequirement {
+			securitySchema, ok := doc.Components.SecuritySchemes[name]
+			if ok && securitySchema.Value != nil {
+				security = append(security, securitySchema.Value)
+			}
+		}
+	}
+	return security
 }
 
 func (p *SchemaParser) sortSchemas() {
@@ -77,37 +92,42 @@ func (p *SchemaParser) sortEndpoints() {
 	})
 }
 
-func (p *SchemaParser) AddEndpoint(key string, path *openapi3.PathItem) {
+func (p *SchemaParser) addEndpoint(
+	doc *openapi3.T,
+	key string,
+	path *openapi3.PathItem,
+	security []*openapi3.SecurityScheme,
+) {
 	if path.Connect != nil {
-		p.CreateEndpoint(key, entity.VERB_CONNECT, path.Connect)
+		p.createEndpoint(doc, key, entity.VERB_CONNECT, path.Connect, security)
 	}
 	if path.Delete != nil {
-		p.CreateEndpoint(key, entity.VERB_DELETE, path.Delete)
+		p.createEndpoint(doc, key, entity.VERB_DELETE, path.Delete, security)
 	}
 	if path.Get != nil {
-		p.CreateEndpoint(key, entity.VERB_GET, path.Get)
+		p.createEndpoint(doc, key, entity.VERB_GET, path.Get, security)
 	}
 	if path.Head != nil {
-		p.CreateEndpoint(key, entity.VERB_HEAD, path.Head)
+		p.createEndpoint(doc, key, entity.VERB_HEAD, path.Head, security)
 	}
 	if path.Options != nil {
-		p.CreateEndpoint(key, entity.VERB_OPTIONS, path.Options)
+		p.createEndpoint(doc, key, entity.VERB_OPTIONS, path.Options, security)
 	}
 	if path.Patch != nil {
-		p.CreateEndpoint(key, entity.VERB_PATCH, path.Patch)
+		p.createEndpoint(doc, key, entity.VERB_PATCH, path.Patch, security)
 	}
 	if path.Post != nil {
-		p.CreateEndpoint(key, entity.VERB_POST, path.Post)
+		p.createEndpoint(doc, key, entity.VERB_POST, path.Post, security)
 	}
 	if path.Put != nil {
-		p.CreateEndpoint(key, entity.VERB_PUT, path.Put)
+		p.createEndpoint(doc, key, entity.VERB_PUT, path.Put, security)
 	}
 	if path.Trace != nil {
-		p.CreateEndpoint(key, entity.VERB_TRACE, path.Trace)
+		p.createEndpoint(doc, key, entity.VERB_TRACE, path.Trace, security)
 	}
 }
 
-func (p *SchemaParser) Add(key string, schemaRef *openapi3.SchemaRef, display bool) *entity.Schema {
+func (p *SchemaParser) add(key string, schemaRef *openapi3.SchemaRef, display bool) *entity.Schema {
 	schema := schemaRef.Value
 	ref := schemaRef.Ref
 	name := GetSchemaName(ref)
@@ -133,19 +153,89 @@ func (p *SchemaParser) Add(key string, schemaRef *openapi3.SchemaRef, display bo
 	return nil
 }
 
-func (p *SchemaParser) CreateEndpoint(key string, verb entity.Verb, operation *openapi3.Operation) *entity.Endpoint {
+func (p *SchemaParser) createEndpoint(
+	doc *openapi3.T,
+	key string,
+	verb entity.Verb,
+	operation *openapi3.Operation,
+	security []*openapi3.SecurityScheme,
+) *entity.Endpoint {
+	securitySchemes := p.createSecuritySchemes(doc, operation, security)
 	endpoint := &entity.Endpoint{
 		Verb:     verb,
 		Name:     GetEndpointName(verb, operation.OperationID, key),
 		Path:     KeyToPath(key),
 		Params:   GetParams(operation),
 		Query:    p.GetQuery(operation),
-		Header:   GetHeader(operation),
+		Header:   GetHeader(operation, securitySchemes),
 		Body:     p.GetBody(operation),
 		Response: p.GetResponses(operation, p.schemasMap),
+		Security: securitySchemes,
 	}
 	p.endpoints = append(p.endpoints, endpoint)
 	return endpoint
+}
+
+func (p *SchemaParser) createSecuritySchemes(
+	doc *openapi3.T,
+	operation *openapi3.Operation,
+	security []*openapi3.SecurityScheme,
+) []entity.Security {
+	schemes := make(map[*openapi3.SecurityScheme]entity.Security)
+
+	for _, scheme := range security {
+		schemes[scheme] = p.createSecurity(scheme)
+	}
+
+	if operation.Security != nil {
+		for _, securityRequirement := range *operation.Security {
+			for name := range securityRequirement {
+				securitySchema, ok := doc.Components.SecuritySchemes[name]
+				if ok && securitySchema.Value != nil {
+					scheme := securitySchema.Value
+					schemes[scheme] = p.createSecurity(scheme)
+				}
+			}
+		}
+	}
+
+	result := make([]entity.Security, len(schemes))
+	index := 0
+	for _, scheme := range schemes {
+		result[index] = scheme
+		index++
+	}
+	fmt.Printf("%v", result)
+
+	return result
+}
+
+func (p *SchemaParser) createSecurity(scheme *openapi3.SecurityScheme) entity.Security {
+	switch strings.ToLower(scheme.Type) {
+	case "http":
+		switch strings.ToLower(scheme.Scheme) {
+		case "basic":
+			return entity.Security{
+				Type: entity.SECURITY_TYPE_BASIC,
+			}
+		case "bearer":
+			return entity.Security{
+				Type: entity.SECURITY_TYPE_BEARER,
+			}
+		default:
+			return entity.Security{
+				Type: entity.SECURITY_TYPE_BASIC,
+			}
+		}
+	case "oauth2":
+		return entity.Security{
+			Type: entity.SECURITY_TYPE_BEARER,
+		}
+	default:
+		return entity.Security{
+			Type: entity.SECURITY_TYPE_BASIC,
+		}
+	}
 }
 
 func GetEndpointName(verb entity.Verb, operationId string, key string) string {

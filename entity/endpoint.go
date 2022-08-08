@@ -9,6 +9,7 @@ type Endpoint struct {
 	Header   map[string]HeaderProperty
 	Body     BodyProperty
 	Response Response
+	Security []Security
 }
 
 type ParamProperty struct {
@@ -52,3 +53,13 @@ type Response struct {
 	Default     bool
 	DefaultCode int
 }
+
+type Security struct {
+	Type SecurityType
+}
+
+type SecurityType string
+
+const SECURITY_TYPE_BASIC SecurityType = "basic"
+const SECURITY_TYPE_BEARER SecurityType = "bearer"
+const SECURITY_TYPE_COOKIE SecurityType = "cookie"

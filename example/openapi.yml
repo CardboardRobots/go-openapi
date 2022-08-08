@@ -67,6 +67,8 @@ paths:
   /token:
     get:
       operationId: getToken
+      security:
+        - basicAuth: []
       parameters:
         - name: authorization
           in: header
@@ -294,3 +296,9 @@ components:
           format: int32
         message:
           type: string
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+security:
+  - basicAuth: []

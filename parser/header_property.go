@@ -6,7 +6,10 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-func GetHeader(operation *openapi3.Operation) map[string]entity.HeaderProperty {
+func GetHeader(
+	operation *openapi3.Operation,
+	securitySchemes []entity.Security,
+) map[string]entity.HeaderProperty {
 	header := make(map[string]entity.HeaderProperty)
 	parameters := array.Map(operation.Parameters, func(ref *openapi3.ParameterRef) *openapi3.Parameter {
 		return ref.Value
@@ -23,6 +26,26 @@ func GetHeader(operation *openapi3.Operation) map[string]entity.HeaderProperty {
 				Name: name,
 				Key:  parameter.Name,
 			}
+		}
+	})
+	array.ForEach(securitySchemes, func(securityScheme entity.Security) {
+		authorization := "authorization"
+		Authorization := "Authorization"
+		switch securityScheme.Type {
+		case entity.SECURITY_TYPE_BASIC:
+			header[Authorization] = entity.HeaderProperty{
+				Type: "string",
+				Name: Authorization,
+				Key:  authorization,
+			}
+		case entity.SECURITY_TYPE_BEARER:
+			header[Authorization] = entity.HeaderProperty{
+				Type: "string",
+				Name: Authorization,
+				Key:  authorization,
+			}
+		case entity.SECURITY_TYPE_COOKIE:
+		default:
 		}
 	})
 	return header
