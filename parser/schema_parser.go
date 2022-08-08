@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"sort"
 	"strings"
 
@@ -205,8 +204,6 @@ func (p *SchemaParser) createSecuritySchemes(
 		result[index] = scheme
 		index++
 	}
-	fmt.Printf("%v", result)
-
 	return result
 }
 

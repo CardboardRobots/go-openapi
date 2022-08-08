@@ -3,10 +3,10 @@ package writer
 import (
 	"bytes"
 	"go/format"
-	"html/template"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"text/template"
 
 	"github.com/cardboardrobots/go-openapi/entity"
 )

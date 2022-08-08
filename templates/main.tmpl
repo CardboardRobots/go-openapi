@@ -1,13 +1,20 @@
 package {{ .Package }}
 
 import (
+	"encoding/base64"
+	"errors"
+	"fmt"
     "net/http"
+	"net/url"
     "strconv"
+	"strings"
 
     "github.com/gin-gonic/gin"
 )
 
 {{ template "util.tmpl" . }}
+
+{{ template "basic_auth.tmpl" . }}
 
 {{ range .Structs }}
     {{ template "component.tmpl" . }}

@@ -1,0 +1,59 @@
+type Authentication struct {
+	*BasicAuth
+}
+
+type BasicAuth struct {
+	Username string
+	Password string
+}
+
+func EncodeBasicAuth(username string, password string) string {
+	escapedUsername := url.QueryEscape(username)
+	escapedPassword := url.QueryEscape(password)
+	data := base64.StdEncoding.EncodeToString([]byte(
+		fmt.Sprintf("%v:%v", escapedUsername, escapedPassword)))
+	return "Basic " + data
+}
+
+func (a BasicAuth) Encode() string {
+	return EncodeBasicAuth(a.Username, a.Password)
+}
+
+func DecodeAuth(header string) Authentication {
+	authentication := Authentication{}
+	if strings.HasPrefix(header, "Basic ") {
+		basicAuth, err := DecodeBasicAuth(header)
+		if err == nil {
+			authentication.BasicAuth = basicAuth
+		}
+	}
+	return authentication
+}
+
+func DecodeBasicAuth(header string) (*BasicAuth, error) {
+	trimmed := strings.Trim(header, "Basic ")
+	data, err := base64.StdEncoding.DecodeString(trimmed)
+	if err != nil {
+		return nil, err
+	}
+
+	parts := strings.Split(string(data), ":")
+	if len(parts) < 2 {
+		return nil, errors.New("unable to parse")
+	}
+
+	username, err := url.QueryUnescape(parts[0])
+	if err != nil {
+		return nil, err
+	}
+
+	password, err := url.QueryUnescape(parts[1])
+	if err != nil {
+		return nil, err
+	}
+
+	return &BasicAuth{
+		Username: username,
+		Password: password,
+	}, nil
+}

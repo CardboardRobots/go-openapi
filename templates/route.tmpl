@@ -34,11 +34,18 @@ func Use{{ .Name }}(router *gin.Engine, service {{ .Name }}Service) {
             return
         }
 
+        {{ if gt (len .Security) 0 }}
+            authentication := DecodeAuth(header.Authorization)
+        {{ else }}
+            authentication := DecodeAuth("")
+        {{ end }}
+
         request := {{ .Name }}Request{
             params,
             query,
             header,
             body,
+            authentication,
         }
 
         response, err := service.{{ .Name }}(ctx, request)
