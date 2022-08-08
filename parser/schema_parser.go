@@ -107,11 +107,12 @@ func (p *SchemaParser) AddEndpoint(key string, path *openapi3.PathItem) {
 	}
 }
 
-func (p *SchemaParser) Add(name string, schemaRef *openapi3.SchemaRef, display bool) *entity.Schema {
+func (p *SchemaParser) Add(key string, schemaRef *openapi3.SchemaRef, display bool) *entity.Schema {
 	schema := schemaRef.Value
 	ref := schemaRef.Ref
+	name := GetSchemaName(ref)
 	if name == "" {
-		name = GetSchemaName(ref)
+		name = key
 	}
 	name = GetPropertyName(name)
 
