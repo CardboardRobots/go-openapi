@@ -32,9 +32,10 @@ func (p *SchemaParser) GetResponses(operation *openapi3.Operation, s map[*openap
 						// TODO: Handle this error
 					} else {
 						responseOption := entity.ResponseOption{
-							Name: schema.Name,
-							Type: schema,
-							Code: GetStatus(code),
+							Name:     schema.Name,
+							Type:     schema,
+							Code:     GetStatus(code),
+							Redirect: IsRediret(code),
 						}
 						responseOptions = append(responseOptions, responseOption)
 					}
@@ -69,4 +70,13 @@ func GetResponseName(code string, key string) string {
 		key = "Json"
 	}
 	return GetPropertyName(key) + GetPropertyName(code)
+}
+
+func IsRediret(status string) bool {
+	code := GetStatus(status)
+	if code >= 300 && code < 400 {
+		return true
+	} else {
+		return false
+	}
 }

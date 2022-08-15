@@ -43,9 +43,10 @@ const ENCODING_URL Encoding = "form"
 const ENCODING_TEXT Encoding = "json"
 
 type ResponseOption struct {
-	Code int
-	Name string
-	Type *Schema
+	Code     int
+	Name     string
+	Type     *Schema
+	Redirect bool
 }
 
 type Response struct {

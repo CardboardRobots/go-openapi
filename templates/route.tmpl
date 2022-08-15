@@ -54,10 +54,17 @@ func Use{{ .Name }}(router *gin.Engine, service {{ .Name }}Service) {
             return
         }
         {{ range .Response.Options }}
-            if response.{{ .Type.Name }} != nil {
-                ctx.IndentedJSON({{ .Code }}, response.{{ .Type.Name }})
-                return
-            }
+            {{ if .Redirect }}
+                if response.{{ .Type.Name }} != nil {
+                    ctx.Redirect({{ .Code }}, response.{{ .Type.Name }})
+                    return
+                }
+            {{ else }}
+                if response.{{ .Type.Name }} != nil {
+                    ctx.IndentedJSON({{ .Code }}, response.{{ .Type.Name }})
+                    return
+                }
+            {{ end }}
         {{ end }}
         {{ if .Response.Default }}
             ctx.IndentedJSON({{ .Response.DefaultCode }}, nil)
