@@ -56,7 +56,7 @@ func Use{{ .Name }}(router *gin.Engine, service {{ .Name }}Service) {
         {{ range .Response.Options }}
             {{ if .Redirect }}
                 if response.{{ .Type.Name }} != nil {
-                    ctx.Redirect({{ .Code }}, response.{{ .Type.Name }})
+                    ctx.Redirect({{ .Code }}, string(*response.{{ .Type.Name }}))
                     return
                 }
             {{ else }}
